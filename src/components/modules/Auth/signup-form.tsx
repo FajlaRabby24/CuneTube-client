@@ -1,4 +1,4 @@
-import PasswordInput from "@/components/common/PasswordInput";
+import PasswordField from "@/components/shared/forms/PasswordField";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -67,13 +67,13 @@ export function SignupForm({
                     <Field className="grid grid-cols-2 gap-4">
                       <Field>
                         <FieldLabel htmlFor="password">Password</FieldLabel>
-                        <PasswordInput id="password" />
+                        <PasswordField id="password" />
                       </Field>
                       <Field>
                         <FieldLabel htmlFor="confirm-password">
                           Confirm Password
                         </FieldLabel>
-                        <PasswordInput
+                        <PasswordField
                           id="confirm-password"
                           placeholder="Confirm password"
                         />

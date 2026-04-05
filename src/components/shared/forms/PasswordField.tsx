@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { Input } from "@/components/ui/input";
 
-export default function PasswordInput({
+export default function PasswordField({
   id,
   required = true,
   placeholder = "Password",

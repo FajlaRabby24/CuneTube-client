@@ -1,4 +1,4 @@
-import PasswordInput from "@/components/common/PasswordInput";
+import PasswordField from "@/components/shared/forms/PasswordField";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -43,7 +43,16 @@ export function LoginForm({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form>
+              <form
+                method="POST"
+                action="#"
+                noValidate
+                // onSubmit={(e) => {
+                //   e.preventDefault();
+                //   e.stopPropagation();
+                //   form.handleSubmit()
+                // }}
+              >
                 <FieldGroup>
                   <Field>
                     <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -57,7 +66,7 @@ export function LoginForm({
                   <Field>
                     <Field>
                       <FieldLabel htmlFor="password">Password</FieldLabel>
-                      <PasswordInput id="password" />
+                      <PasswordField id="password" />
                     </Field>
                   </Field>
                   <Field>
