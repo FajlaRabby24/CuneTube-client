@@ -14,12 +14,11 @@ import {
   FieldLabel,
   FieldSeparator,
 } from "@/components/ui/field";
-import FileUpload from "@/components/ui/file-upload";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-export function SignupForm({
+export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
@@ -27,33 +26,25 @@ export function SignupForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
+          <div className="relative hidden bg-muted md:block">
+            <Image
+              src="/auth.svg"
+              alt="Image"
+              className="absolute inset-0 h-full w-full object-cover "
+              width={500}
+              height={500}
+            />
+          </div>
           <Card>
             <CardHeader className="text-center">
-              <CardTitle className="text-xl">Create your account</CardTitle>
+              <CardTitle className="text-xl">Welcome back</CardTitle>
               <CardDescription className="text-muted-foreground">
-                Enter your email below to create your account
+                Login to your CuneTube account
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form>
                 <FieldGroup>
-                  <Field className="grid grid-cols-2 gap-4">
-                    <Field>
-                      <FieldLabel htmlFor="name">Full Name</FieldLabel>
-                      <Input
-                        id="name"
-                        type="text"
-                        placeholder="John Doe"
-                        required
-                      />
-                    </Field>
-
-                    <Field>
-                      <FieldLabel htmlFor="email">Image (optional)</FieldLabel>
-                      <FileUpload />
-                    </Field>
-                  </Field>
-
                   <Field>
                     <FieldLabel htmlFor="email">Email</FieldLabel>
                     <Input
@@ -64,27 +55,13 @@ export function SignupForm({
                     />
                   </Field>
                   <Field>
-                    <Field className="grid grid-cols-2 gap-4">
-                      <Field>
-                        <FieldLabel htmlFor="password">Password</FieldLabel>
-                        <PasswordInput id="password" />
-                      </Field>
-                      <Field>
-                        <FieldLabel htmlFor="confirm-password">
-                          Confirm Password
-                        </FieldLabel>
-                        <PasswordInput
-                          id="confirm-password"
-                          placeholder="Confirm password"
-                        />
-                      </Field>
+                    <Field>
+                      <FieldLabel htmlFor="password">Password</FieldLabel>
+                      <PasswordInput id="password" />
                     </Field>
-                    <FieldDescription>
-                      Must be at least 8 characters long.
-                    </FieldDescription>
                   </Field>
                   <Field>
-                    <Button type="submit">Register</Button>
+                    <Button type="submit">Sign in</Button>
                     <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card my-2">
                       Or continue with
                     </FieldSeparator>
@@ -103,22 +80,14 @@ export function SignupForm({
                       </Button>
                     </Field>
                     <FieldDescription className="text-center">
-                      Already have an account? <Link href="/login">Login</Link>
+                      Don&apos;t have an account?{" "}
+                      <Link href="/register">Register</Link>
                     </FieldDescription>
                   </Field>
                 </FieldGroup>
               </form>
             </CardContent>
           </Card>
-          <div className="relative hidden bg-muted md:block">
-            <Image
-              src="/auth.svg"
-              alt="Image"
-              className="absolute inset-0 h-full w-full  object-cover "
-              width={500}
-              height={500}
-            />
-          </div>
         </CardContent>
       </Card>
     </div>
