@@ -88,10 +88,16 @@ export const loginAction = async (
       "/auth/login",
       parsedPayload.data,
     );
-
-    const { accessToken, refreshToken, user, token } = response.data;
-    const { role, needPasswordChange, email, emailVerified } = user;
-
+    const {
+      accessToken,
+      refreshToken,
+      token,
+      email,
+      emailVerified,
+      role,
+      needPasswordChange,
+    } = response.data;
+    console.log(response.data, "response data");
     await setTokenInCookies("accessToken", accessToken);
     await setTokenInCookies("refreshToken", refreshToken);
     await setTokenInCookies(
@@ -113,7 +119,6 @@ export const loginAction = async (
       redirect(targetPath);
     }
   } catch (error: any) {
-    console.log(error, "error");
     if (
       error &&
       typeof error === "object" &&
