@@ -1,7 +1,9 @@
-import { loginZodSchema } from "@/zod/auth.validation";
+import { loginZodSchema, registerZodSchema } from "@/zod/auth.validation";
 import z from "zod";
 
 export type ILoginPayload = z.infer<typeof loginZodSchema>;
+
+export type IRegisterPayload = z.infer<typeof registerZodSchema>;
 
 export interface ILoginResponse {
   token: string;
@@ -17,4 +19,9 @@ export interface ILoginResponse {
     isDeleted: boolean;
     emailVerified: boolean;
   };
+}
+
+export interface IRegisterResponse {
+  success: boolean;
+  message: string;
 }

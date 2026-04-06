@@ -4,6 +4,7 @@ import { CircleUserRoundIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useFileUpload } from "@/hooks/use-file-uplaod";
+import Image from "next/image";
 
 export default function FileUpload() {
   const [{ files }, { removeFile, openFileDialog, getInputProps }] =
@@ -22,7 +23,7 @@ export default function FileUpload() {
           className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-input"
         >
           {previewUrl ? (
-            <img
+            <Image
               alt="Upload preview"
               className="size-full object-cover"
               height={32}
@@ -67,11 +68,11 @@ export default function FileUpload() {
           </button>
         </div>
       )}
-      {/* <p
+      <p
         aria-live="polite"
         className="mt-2 text-muted-foreground text-xs"
         role="region"
-      ></p> */}
+      ></p>
     </div>
   );
 }

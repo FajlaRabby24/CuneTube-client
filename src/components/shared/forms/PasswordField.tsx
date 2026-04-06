@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { AnyFieldApi } from "@tanstack/react-form";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 const getErrorMessage = (error: unknown): string => {
@@ -20,6 +21,7 @@ const getErrorMessage = (error: unknown): string => {
 };
 
 type InputFieldProps = {
+  from?: string;
   field: AnyFieldApi;
   label: string;
   id: string;
@@ -31,6 +33,7 @@ type InputFieldProps = {
 };
 
 export default function PasswordField({
+  from,
   field,
   label,
   id,
@@ -53,16 +56,26 @@ export default function PasswordField({
 
   return (
     <div className={cn("space-y-1.5", className)}>
-      <FieldLabel
-        htmlFor={field.name}
-        className={cn(hasError && "text-destructive")}
-      >
-        {label}
-      </FieldLabel>
+      <div className={cn("flex items-center")}>
+        <FieldLabel
+          htmlFor={field.name}
+          className={cn(hasError && "text-destructive")}
+        >
+          {label}
+        </FieldLabel>
+        <Link
+          href={`/forgot-password`}
+          className={cn(
+            "ml-auto inline-block text-sm underline-offset-4 hover:underline",
+            from === "login" ? "block" : "hidden",
+          )}
+        >
+          Forgot your password?
+        </Link>
+      </div>
 
       <div className="relative">
         <Input
-          // className="pe-9"
           required
           placeholder={placeholder}
           type={isVisible ? "text" : "password"}
@@ -84,7 +97,7 @@ export default function PasswordField({
           aria-controls="password"
           aria-label={isVisible ? "Hide password" : "Show password"}
           aria-pressed={isVisible}
-          className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md text-muted-foreground/80 outline-none transition-[color,box-shadow] hover:text-foreground focus:z-10 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+          className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md text-muted-foreground/80 outline-none transition-[color,box-shadow] hover:text-foreground focus:z-10 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
           onClick={toggleVisibility}
           type="button"
         >
