@@ -54,3 +54,11 @@ export const updateProfileSchema = z.object({
     .nullable()
     .optional(),
 });
+
+export const resetPasswordSchema = z.object({
+  email: z.email("Email must be a valid email address"),
+  otp: z.string().length(6, "OTP must be 6 characters long"),
+  newPassword: z
+    .string()
+    .min(8, "New password must be at least 8 characters long"),
+});
