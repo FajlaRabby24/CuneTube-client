@@ -2,20 +2,18 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { httpClient } from "@/lib/axios/httpClient";
-import { ApiErrorResponse } from "@/types/api.types";
 import {
   ILoginPayload,
   ILoginResponse,
   IRegisterPayload,
   IRegisterResponse,
 } from "@/types/auth.types";
-import { loginZodSchema, registerZodSchema } from "@/zod/auth.validation";
-import { redirect } from "next/navigation";
 import {
-  getDefaultDashboardRoute,
-  isValidRedirectForRole,
-  UserRole,
-} from "../lib/authUtilts";
+  loginZodSchema,
+  registerZodSchema,
+  verifyEmailSchema,
+} from "@/zod/auth.validation";
+import { getDefaultDashboardRoute, UserRole } from "../lib/authUtilts";
 import { setTokenInCookies } from "../lib/tokenUtils";
 
 export const registerAction = async (payload: IRegisterPayload) => {
@@ -39,12 +37,44 @@ export const registerAction = async (payload: IRegisterPayload) => {
       "/auth/register",
       dataToSend,
     );
-    console.log(response, "from auth service");
-    return { success: true, message: response.message };
+    const {
+      accessToken,
+      refreshToken,
+      token,
+      user: { needPasswordChange, email, role, emailVerified },
+    } = response.data;
+
+    await setTokenInCookies("accessToken", accessToken);
+    await setTokenInCookies("refreshToken", refreshToken);
+    await setTokenInCookies(
+      "better-auth.session_token",
+      token,
+      60 * 60 * 24 * 7, // 7 days
+    );
+
+    if (!emailVerified) {
+      return {
+        success: true,
+        message: "Registration successful. Please verify your email.",
+        route: `/verify-email?email=${email}`,
+      };
+    } else if (needPasswordChange) {
+      return {
+        success: true,
+        message: "Registration successful. Please reset your password.",
+        route: `/reset-password?email=${email}`,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Registration successful.",
+      route: getDefaultDashboardRoute(role as UserRole),
+    };
   } catch (error: any) {
     return {
       success: false,
-      message: `Registration failed: ${error?.response?.data?.message}`,
+      message: `Registration failed: ${error.message}`,
     };
   }
 };
@@ -52,7 +82,7 @@ export const registerAction = async (payload: IRegisterPayload) => {
 export const loginAction = async (
   payload: ILoginPayload,
   redirectPath?: string,
-): Promise<ILoginResponse | ApiErrorResponse> => {
+) => {
   const parsedPayload = loginZodSchema.safeParse(payload);
 
   if (!parsedPayload.success) {
@@ -74,7 +104,7 @@ export const loginAction = async (
       token,
       user: { needPasswordChange, email, role, emailVerified },
     } = response.data;
-    console.log(response.data, "response data");
+
     await setTokenInCookies("accessToken", accessToken);
     await setTokenInCookies("refreshToken", refreshToken);
     await setTokenInCookies(
@@ -83,22 +113,64 @@ export const loginAction = async (
       60 * 60 * 24 * 7, // 7 days
     );
 
-    if (!emailVerified) {
-      redirect(`/verify-email?email=${email}`);
-    } else if (needPasswordChange) {
-      redirect(`/reset-password?email=${email}`);
-    } else {
-      const targetPath =
-        redirectPath && isValidRedirectForRole(redirectPath, role as UserRole)
-          ? redirectPath
-          : getDefaultDashboardRoute(role as UserRole);
-
-      redirect(targetPath);
+    if (needPasswordChange) {
+      return {
+        success: true,
+        message: "Please first reset your password.",
+        route: `/reset-password?email=${email}`,
+      };
     }
+
+    return {
+      success: true,
+      message: "Registration successful.",
+      route: getDefaultDashboardRoute(role as UserRole),
+    };
   } catch (error: any) {
+    if (
+      !error?.response?.data?.success &&
+      error?.response?.data?.message === "Email not verified"
+    ) {
+      return {
+        success: true,
+        message: "Login successful. Please verify your email.",
+        route: `/verify-email?email=${payload.email}`,
+      };
+    }
     return {
       success: false,
       message: `Login failed: ${error?.response?.data?.message}`,
+    };
+  }
+};
+
+export const verifyEmailAction = async (email: string, otp: string) => {
+  console.log({ email, otp }, "verify email");
+  const parsedPayload = verifyEmailSchema.safeParse({ email, otp });
+  console.log(parsedPayload.error, "parsed payloadd");
+  if (!parsedPayload.success) {
+    const firstError = parsedPayload.error.issues[0].message || "Invalid input";
+    return {
+      success: false,
+      message: firstError,
+    };
+  }
+
+  try {
+    await httpClient.post("/auth/verify-email-otp", {
+      email,
+      otp,
+    });
+
+    return {
+      success: true,
+      message: "Email verification successful.",
+      route: "/",
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: `Email verification failed: ${error?.response?.data?.message}`,
     };
   }
 };

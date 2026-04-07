@@ -52,15 +52,20 @@ export function SignupForm({
       try {
         if (value.image) {
           // TODO: upload image
+          // validateImage(value.image as File);
         }
-        const result = (await mutateAsync(value)) as any;
+        const result = (await mutateAsync(value)) as {
+          success: boolean;
+          message: string;
+          route: string;
+        };
         if (!result.success) {
           toast.error(result.message || "Registration failed");
           return;
         }
 
         toast.success(result.message || "Registration successful");
-        router.push(`/verify-email?email=${value.email}`);
+        router.push(result.route);
       } catch (error: any) {
         toast.error("Registration failed. Please try again.");
       }

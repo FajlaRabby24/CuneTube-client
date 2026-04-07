@@ -25,6 +25,7 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import GoogleLoginButton from "../../shared/forms/GoogleLoginButton";
 
@@ -33,6 +34,7 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ redirectPath }: LoginFormProps) {
+  const router = useRouter();
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (payload: ILoginPayload) => loginAction(payload, redirectPath),
   });
@@ -45,13 +47,20 @@ export function LoginForm({ redirectPath }: LoginFormProps) {
 
     onSubmit: async ({ value }) => {
       try {
-        const result = (await mutateAsync(value)) as any;
+        const result = (await mutateAsync(value)) as {
+          success: boolean;
+          message: string;
+          route: string;
+        };
         if (!result.success) {
           toast.error(result.message || "Login failed");
           return;
         }
+
+        toast.success(result.message || "Login successful");
+        router.push(result.route);
       } catch (error: any) {
-        toast.error(error?.response?.data?.message || "Login failed");
+        toast.error("Login failed. Please try again.");
       }
     },
   });

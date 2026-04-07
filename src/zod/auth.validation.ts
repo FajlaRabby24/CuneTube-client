@@ -21,3 +21,8 @@ export const registerZodSchema = z.object({
     .max(20, "Password must be at most 20 characters long"),
   image: z.string().url("Image must be a valid URL").nullable().optional(),
 });
+
+export const verifyEmailSchema = z.object({
+  email: z.email("Email must be a valid email address"),
+  otp: z.string().length(6, "OTP must be 6 characters long"),
+});
