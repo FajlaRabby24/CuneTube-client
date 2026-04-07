@@ -73,12 +73,18 @@ export async function getUserInfo() {
       },
     });
 
+    // if (!res.ok) {
+    //   console.error("Failed to fetch user info");
+    //   return null;
+    // }
+
     if (!res.success) {
-      console.error("Failed to fetch user info");
       return null;
     }
 
     const data = res.data;
+
+    // const data = await res.json();
 
     return data;
   } catch (error) {

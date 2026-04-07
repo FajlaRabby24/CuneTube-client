@@ -21,20 +21,21 @@ const DashboardSidebarContent = ({
   userInfo,
 }: DashboardSidebarContentProps) => {
   const pathname = usePathname();
+  console.log(navItems);
 
   return (
     <div className="hidden md:flex h-full w-64 flex-col border-r bg-card overflow-y-auto">
       {/* Logo / Brand */}
       <div className="flex h-16 items-center border-b px-6 py-2">
         <Link href={dashboardHome}>
-          <span className="text-xl font-bold text-primary">PH Healthcare</span>
+          <span className="text-xl font-bold text-primary">CuneTube</span>
         </Link>
       </div>
 
       {/* Navigation Area */}
       <ScrollArea className="flex-1 px-3 py-4">
         <nav className="space-y-6">
-          {navItems.map((section, sectionId) => (
+          {navItems?.map((section, sectionId) => (
             <div key={sectionId}>
               {section.title && (
                 <h4 className="mb-2 px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">

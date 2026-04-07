@@ -5,13 +5,8 @@ export const getCommonNavItems = (role: UserRole): NavSection[] => {
   const defaultDashboard = getDefaultDashboardRoute(role);
   return [
     {
-      title: "Dashboard",
+      // title: "Dashboard",
       items: [
-        {
-          title: "Home",
-          href: "/",
-          icon: "Home",
-        },
         {
           title: "Dashboard",
           href: defaultDashboard,
@@ -143,5 +138,8 @@ export const getNavItemsByRole = (role: UserRole): NavSection[] => {
 
     case UserRole.USER:
       return [...commonNavItems, ...userNavItems];
+
+    default:
+      return commonNavItems;
   }
 };
