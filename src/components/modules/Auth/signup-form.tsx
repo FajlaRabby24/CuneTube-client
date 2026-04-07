@@ -25,7 +25,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { registerAction } from "../../../services/auth.service";
+import { registerAction } from "../../../services/Auth/register.service";
 import { IRegisterPayload } from "../../../types/auth.types";
 import { registerZodSchema } from "../../../zod/auth.validation";
 import AppSubmitButton from "../../shared/forms/AppSubmitButton";

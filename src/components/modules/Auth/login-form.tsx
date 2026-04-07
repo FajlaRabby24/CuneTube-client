@@ -18,7 +18,6 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
-import { loginAction } from "@/services/auth.service";
 import { ILoginPayload } from "@/types/auth.types";
 import { loginZodSchema } from "@/zod/auth.validation";
 import { useForm } from "@tanstack/react-form";
@@ -27,6 +26,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { loginAction } from "../../../services/Auth/login.service";
 import GoogleLoginButton from "../../shared/forms/GoogleLoginButton";
 
 interface LoginFormProps {
@@ -36,7 +36,7 @@ interface LoginFormProps {
 export function LoginForm({ redirectPath }: LoginFormProps) {
   const router = useRouter();
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: (payload: ILoginPayload) => loginAction(payload, redirectPath),
+    mutationFn: (payload: ILoginPayload) => loginAction(payload),
   });
 
   const form = useForm({
