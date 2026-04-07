@@ -1,3 +1,5 @@
+import DashboardSidebar from "../../components/modules/Dashboard/DashboardSidebar";
+
 const RootDashboardLayout = async ({
   children,
 }: {
@@ -6,6 +8,7 @@ const RootDashboardLayout = async ({
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Dashboard Sidebar */}
+      <DashboardSidebar />
 
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* DashboardNavbar */}
