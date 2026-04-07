@@ -26,3 +26,12 @@ export const verifyEmailSchema = z.object({
   email: z.email("Email must be a valid email address"),
   otp: z.string().length(6, "OTP must be 6 characters long"),
 });
+
+export const changePasswordSchema = z.object({
+  currentPassword: z
+    .string()
+    .min(8, "Current password must be at least 8 characters long"),
+  newPassword: z
+    .string()
+    .min(8, "New password must be at least 8 characters long"),
+});
