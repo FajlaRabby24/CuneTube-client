@@ -1,6 +1,7 @@
 "use server";
 
 import { envVars } from "@/config/env";
+import { UserRole } from "@/lib/authUtilts";
 import { cookies } from "next/headers";
 import { httpClient } from "../../lib/axios/httpClient";
 
@@ -17,27 +18,15 @@ export async function getNewTokensWithRefreshToken(
     const cookieStore = await cookies();
     const sessionToken = cookieStore.get("better-auth.session_token")?.value;
 
-    // const res = await fetch(`${BASE_API_URL}/auth/refresh-token`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Cookie: `refreshToken=${refreshToken}; better-auth.session_token=${sessionToken}`,
-    //   },
-    // });
-
     const res = await httpClient.post("/auth/refresh-token", {
       headers: {
         Cookie: `refreshToken=${refreshToken}; better-auth.session_token=${sessionToken}`,
       },
     });
 
-    // console.log({ res });
-
     if (!res.success) {
       return false;
     }
-
-    // const { data } = await res.json();
 
     // Cookies are already set via set-cookie headers in the response
     // No need to manually set them
@@ -46,6 +35,18 @@ export async function getNewTokensWithRefreshToken(
     console.error("Error refreshing token:", error);
     return false;
   }
+}
+
+export interface IUserInfo {
+  name: string;
+  email: string;
+  image: string | null;
+  role: UserRole;
+  isActive: boolean | null;
+  isBanned: boolean | null;
+  id: string;
+  emailVerified: true;
+  needPasswordChange: boolean;
 }
 
 export async function getUserInfo() {
@@ -59,24 +60,11 @@ export async function getUserInfo() {
       return null;
     }
 
-    // const res = await fetch(`${BASE_API_URL}/auth/me`, {
-    //   method: "GET",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,
-    //   },
-    // });
-
-    const res = await httpClient.get("/auth/me", {
+    const res = await httpClient.get<IUserInfo>("/auth/me", {
       headers: {
         Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,
       },
     });
-
-    // if (!res.ok) {
-    //   console.error("Failed to fetch user info");
-    //   return null;
-    // }
 
     if (!res.success) {
       return null;
@@ -84,8 +72,6 @@ export async function getUserInfo() {
 
     const data = res.data;
     console.log({ data }, "from get me service");
-
-    // const data = await res.json();
 
     return data;
   } catch (error) {
