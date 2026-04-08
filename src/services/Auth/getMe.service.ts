@@ -83,6 +83,7 @@ export async function getUserInfo() {
     }
 
     const data = res.data;
+    console.log({ data }, "from get me service");
 
     // const data = await res.json();
 

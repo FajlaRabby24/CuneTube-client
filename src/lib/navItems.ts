@@ -27,6 +27,16 @@ export const getCommonNavItems = (role: UserRole): NavSection[] => {
           href: "change-password",
           icon: "Settings",
         },
+        {
+          title: "Update Profile",
+          href: "update-profile",
+          icon: "User",
+        },
+        {
+          title: "Reset Password",
+          href: "reset-password",
+          icon: "Key",
+        },
       ],
     },
   ];
@@ -45,6 +55,31 @@ export const adminNavItems: NavSection[] = [
         title: "Users",
         href: "/admin/dashboard/users-management",
         icon: "Users",
+      },
+      {
+        title: "Media",
+        href: "/admin/dashboard/media-management",
+        icon: "Media",
+      },
+      {
+        title: "Pricing Plans",
+        href: "/admin/dashboard/pricing-management",
+        icon: "DollarSign",
+      },
+      {
+        title: "Reports",
+        href: "/admin/dashboard/reports-management",
+        icon: "BarChart",
+      },
+      {
+        title: "Reviews",
+        href: "/admin/dashboard/reviews-management",
+        icon: "Star",
+      },
+      {
+        title: "Tags",
+        href: "/admin/dashboard/tags-management",
+        icon: "Tag",
       },
     ],
   },
