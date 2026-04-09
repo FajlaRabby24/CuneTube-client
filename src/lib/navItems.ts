@@ -44,16 +44,16 @@ export const getCommonNavItems = (role: UserRole): NavSection[] => {
 
 export const adminNavItems: NavSection[] = [
   {
-    title: "User Management",
+    title: "Management",
     items: [
       {
         title: "Admins",
-        href: "/admin/dashboard/admins-management",
+        href: "/admin/dashboard/admin-management",
         icon: "Shield",
       },
       {
         title: "Users",
-        href: "/admin/dashboard/users-management",
+        href: "/admin/dashboard/user-management",
         icon: "Users",
       },
       {
@@ -68,63 +68,18 @@ export const adminNavItems: NavSection[] = [
       },
       {
         title: "Reports",
-        href: "/admin/dashboard/reports-management",
+        href: "/admin/dashboard/report-management",
         icon: "BarChart",
       },
       {
         title: "Reviews",
-        href: "/admin/dashboard/reviews-management",
+        href: "/admin/dashboard/review-management",
         icon: "Star",
       },
       {
         title: "Tags",
-        href: "/admin/dashboard/tags-management",
+        href: "/admin/dashboard/tag-management",
         icon: "Tag",
-      },
-    ],
-  },
-  {
-    title: "Hospital Management",
-    items: [
-      {
-        title: "Appointments",
-        href: "/admin/dashboard/appointments-management",
-        icon: "Calendar",
-      },
-      {
-        title: "Schedules",
-        href: "/admin/dashboard/schedules-management",
-        icon: "Clock",
-      },
-      {
-        title: "Specialties",
-        href: "/admin/dashboard/specialties-management",
-        icon: "Hospital",
-      },
-      {
-        title: "Doctor Schedules",
-        href: "/admin/dashboard/doctor-schedules-managament",
-        icon: "CalendarClock",
-      },
-      {
-        title: "Doctor Specialties",
-        href: "/admin/dashboard/doctor-specialties-management",
-        icon: "Stethoscope",
-      },
-      {
-        title: "Payments",
-        href: "/admin/dashboard/payments-management",
-        icon: "CreditCard",
-      },
-      {
-        title: "Prescriptions",
-        href: "/admin/dashboard/prescriptions-management",
-        icon: "FileText",
-      },
-      {
-        title: "Reviews",
-        href: "/admin/dashboard/reviews-management",
-        icon: "Star",
       },
     ],
   },
@@ -132,32 +87,32 @@ export const adminNavItems: NavSection[] = [
 
 export const userNavItems: NavSection[] = [
   {
-    title: "Appointments",
+    // title: "Payments",
     items: [
       {
-        title: "My Appointments",
-        href: "/dashboard/my-appointments",
+        title: "Payments",
+        href: "/dashboard/payments",
+        icon: "CreditCard",
+      },
+      {
+        title: "Reviews",
+        href: "/dashboard/reviews",
+        icon: "Star",
+      },
+      {
+        title: "Comments",
+        href: "/dashboard/comments",
+        icon: "MessageSquare",
+      },
+      {
+        title: "Subscriptions",
+        href: "/dashboard/subscriptions",
         icon: "Calendar",
       },
       {
-        title: "Book Appointment",
-        href: "/dashboard/book-appointments",
-        icon: "ClipboardList",
-      },
-    ],
-  },
-  {
-    title: "Medical Records",
-    items: [
-      {
-        title: "My Prescriptions",
-        href: "/dashboard/my-prescriptions",
-        icon: "FileText",
-      },
-      {
-        title: "Health Records",
-        href: "/dashboard/health-records",
-        icon: "Activity",
+        title: "Watchlist",
+        href: "/dashboard/watchlist",
+        icon: "Heart",
       },
     ],
   },
