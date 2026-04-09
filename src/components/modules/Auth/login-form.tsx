@@ -36,7 +36,7 @@ interface LoginFormProps {
 export function LoginForm({ redirectPath }: LoginFormProps) {
   const router = useRouter();
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: (payload: ILoginPayload) => loginAction(payload),
+    mutationFn: (payload: ILoginPayload) => loginAction(payload, redirectPath),
   });
 
   const form = useForm({

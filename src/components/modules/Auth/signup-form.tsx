@@ -30,14 +30,17 @@ import { IRegisterPayload } from "../../../types/auth.types";
 import { registerZodSchema } from "../../../zod/auth.validation";
 import AppSubmitButton from "../../shared/forms/AppSubmitButton";
 import ImagePreview from "../../ui/file-priview";
-export function SignupForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+
+interface RegisterFormProps {
+  redirectPath?: string;
+}
+
+export function SignupForm({ redirectPath }: RegisterFormProps) {
   const router = useRouter();
 
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: (payload: IRegisterPayload) => registerAction(payload),
+    mutationFn: (payload: IRegisterPayload) =>
+      registerAction(payload, redirectPath),
   });
 
   const form = useForm({
@@ -73,7 +76,7 @@ export function SignupForm({
   });
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn("flex flex-col gap-6")}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
           <Card>

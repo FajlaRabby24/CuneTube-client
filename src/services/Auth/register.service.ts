@@ -1,11 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getDefaultDashboardRoute, UserRole } from "../../lib/authUtilts";
+import {
+  getDefaultDashboardRoute,
+  isValidRedirectForRole,
+  UserRole,
+} from "../../lib/authUtilts";
 import { httpClient } from "../../lib/axios/httpClient";
 import { setTokenInCookies } from "../../lib/tokenUtils";
 import { IRegisterPayload, IRegisterResponse } from "../../types/auth.types";
 import { registerZodSchema } from "../../zod/auth.validation";
 
-export const registerAction = async (payload: IRegisterPayload) => {
+export const registerAction = async (
+  payload: IRegisterPayload,
+  redirectPath?: string,
+) => {
   const parsedPayload = registerZodSchema.safeParse(payload);
 
   if (!parsedPayload.success) {
@@ -58,7 +65,10 @@ export const registerAction = async (payload: IRegisterPayload) => {
     return {
       success: true,
       message: "Registration successful.",
-      route: getDefaultDashboardRoute(role as UserRole),
+      route:
+        redirectPath && isValidRedirectForRole(redirectPath, role as UserRole)
+          ? redirectPath
+          : getDefaultDashboardRoute(role as UserRole),
     };
   } catch (error: any) {
     return {
