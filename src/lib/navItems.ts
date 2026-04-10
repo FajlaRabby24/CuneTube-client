@@ -57,6 +57,11 @@ export const adminNavItems: NavSection[] = [
         icon: "Users",
       },
       {
+        title: "Payments",
+        href: "/admin/dashboard/payment-management",
+        icon: "CreditCard",
+      },
+      {
         title: "Media",
         href: "/admin/dashboard/media-management",
         icon: "Media",
