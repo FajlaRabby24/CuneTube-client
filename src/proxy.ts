@@ -47,7 +47,7 @@ export const proxy = async (request: NextRequest) => {
     let userRole: UserRole | null = null;
 
     if (decodedAccessToken) {
-      userRole = decodedAccessToken.role as UserRole;
+      userRole = decodedAccessToken?.role as UserRole;
     }
 
     const routerOwner = getRouteOwner(pathname);
@@ -194,7 +194,7 @@ export const proxy = async (request: NextRequest) => {
       return NextResponse.next();
     }
 
-    //Rule-6 User trying to visit role based protected but doesn't have required role -> redirect to their default dashboard
+    //Rule-7 User trying to visit role based protected but doesn't have required role -> redirect to their default dashboard
 
     if (
       routerOwner === UserRole.ADMIN ||

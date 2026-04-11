@@ -36,7 +36,8 @@ interface LoginFormProps {
 export function LoginForm({ redirectPath }: LoginFormProps) {
   const router = useRouter();
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: (payload: ILoginPayload) => loginAction(payload, redirectPath),
+    mutationFn: (payload: ILoginPayload) =>
+      loginAction(payload, redirectPath, navigator.userAgent),
   });
 
   const form = useForm({
@@ -52,6 +53,7 @@ export function LoginForm({ redirectPath }: LoginFormProps) {
           message: string;
           route: string;
         };
+
         if (!result.success) {
           toast.error(result.message || "Login failed");
           return;

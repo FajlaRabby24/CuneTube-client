@@ -3,7 +3,6 @@
 import { envVars } from "@/config/env";
 import { UserRole } from "@/lib/authUtilts";
 import { cookies } from "next/headers";
-import { httpClient } from "../../lib/axios/httpClient";
 
 const BASE_API_URL = envVars.NEXT_PUBLIC_API_BASE_URL;
 
@@ -11,25 +10,72 @@ if (!BASE_API_URL) {
   throw new Error("NEXT_PUBLIC_API_BASE_URL is not defined");
 }
 
+// ✅ Helper — সব cookie string এ convert
+async function getCookieHeader(): Promise<string> {
+  const cookieStore = await cookies();
+  return cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ");
+}
+
+// ✅ Helper — backend set-cookie গুলো Next.js এ forward
+async function forwardSetCookies(res: Response): Promise<void> {
+  const setCookies = res.headers.getSetCookie();
+  if (!setCookies.length) return;
+
+  const cookieStore = await cookies();
+
+  for (const cookieStr of setCookies) {
+    const parts = cookieStr.split(";").map((p) => p.trim());
+    const [nameValue, ...attributes] = parts;
+    const eqIndex = nameValue.indexOf("=");
+    if (eqIndex === -1) continue;
+
+    const name = nameValue.slice(0, eqIndex).trim();
+    const value = nameValue.slice(eqIndex + 1).trim();
+    const options: Record<string, string | boolean | number | Date> = {};
+
+    for (const attr of attributes) {
+      const lAttr = attr.toLowerCase();
+      if (lAttr === "httponly") options.httpOnly = true;
+      else if (lAttr === "secure") options.secure = true;
+      else if (lAttr.startsWith("max-age="))
+        options.maxAge = parseInt(attr.split("=")[1]);
+      else if (lAttr.startsWith("path=")) options.path = attr.split("=")[1];
+      else if (lAttr.startsWith("samesite="))
+        options.sameSite = attr.split("=")[1].toLowerCase() as
+          | "strict"
+          | "lax"
+          | "none";
+      else if (lAttr.startsWith("expires="))
+        options.expires = new Date(attr.split("=")[1]);
+    }
+
+    cookieStore.set(name, value, options);
+  }
+}
+
+// ✅ Refresh token
 export async function getNewTokensWithRefreshToken(
   refreshToken: string,
 ): Promise<boolean> {
   try {
-    const cookieStore = await cookies();
-    const sessionToken = cookieStore.get("better-auth.session_token")?.value;
+    const cookieHeader = await getCookieHeader();
 
-    const res = await httpClient.post("/auth/refresh-token", {
+    const res = await fetch(`${BASE_API_URL}/auth/refresh-token`, {
+      method: "POST",
       headers: {
-        Cookie: `refreshToken=${refreshToken}; better-auth.session_token=${sessionToken}`,
+        "Content-Type": "application/json",
+        Cookie: cookieHeader,
       },
+      cache: "no-store",
     });
 
-    if (!res.success) {
-      return false;
-    }
+    if (!res.ok) return false;
 
-    // Cookies are already set via set-cookie headers in the response
-    // No need to manually set them
+    await forwardSetCookies(res);
+
     return true;
   } catch (error) {
     console.error("Error refreshing token:", error);
@@ -38,6 +84,8 @@ export async function getNewTokensWithRefreshToken(
 }
 
 export interface IUserInfo {
+  success: boolean;
+  message: string;
   name: string;
   email: string;
   image: string | null;
@@ -45,30 +93,29 @@ export interface IUserInfo {
   isActive: boolean;
   isBanned: boolean;
   id: string;
-  emailVerified: true;
+  emailVerified: boolean;
   needPasswordChange: boolean;
 }
 
-export async function getUserInfo() {
+// ✅ Get user info
+export async function getUserInfo(): Promise<IUserInfo | null> {
   try {
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get("accessToken")?.value;
-    const sessionToken = cookieStore.get("better-auth.session_token")?.value;
-    // console.log(`tokens from client`, { accessToken, sessionToken });
+    const cookieHeader = await getCookieHeader();
 
-    if (!accessToken) {
-      return null;
-    }
-
-    const res = await httpClient.get<IUserInfo>("/auth/me", {
+    const res = await fetch(`${BASE_API_URL}/auth/me`, {
+      method: "GET",
       headers: {
-        Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,
+        Cookie: cookieHeader,
       },
+      cache: "no-store",
     });
 
-    const data = res.data;
+    if (!res.ok) return null;
 
-    return data;
+    await forwardSetCookies(res);
+
+    const data = await res.json();
+    return data?.data ?? null;
   } catch (error) {
     console.error("Error fetching user info:", error);
     return null;

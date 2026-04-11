@@ -1,5 +1,6 @@
 "use server";
 
+import { envVars } from "@/config/env";
 import {
   getDefaultDashboardRoute,
   isValidRedirectForRole,
@@ -11,10 +12,16 @@ import { ILoginPayload, ILoginResponse } from "../../types/auth.types";
 import { loginZodSchema } from "../../zod/auth.validation";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+const BASE_API_URL = envVars.NEXT_PUBLIC_API_BASE_URL;
+
+if (!BASE_API_URL) {
+  throw new Error("NEXT_PUBLIC_API_BASE_URL is not defined");
+}
 
 export const loginAction = async (
   payload: ILoginPayload,
   redirectPath?: string,
+  userAgent?: string,
 ) => {
   const parsedPayload = loginZodSchema.safeParse(payload);
 
@@ -25,18 +32,29 @@ export const loginAction = async (
       message: firstError,
     };
   }
-
+  console.log({ userAgent }, "user agent in login service");
   try {
-    const response = await httpClient.post<ILoginResponse>(
-      "/auth/login",
-      parsedPayload.data,
-    );
+    const response = await httpClient.post<ILoginResponse>("/auth/login", {
+      ...parsedPayload.data,
+      userAgent: userAgent ?? "unknown",
+    });
     const {
       accessToken,
       refreshToken,
       token,
       user: { needPasswordChange, email, role },
     } = response.data;
+    console.log({
+      success: false,
+      message: response.message,
+    });
+
+    if (!accessToken || !refreshToken || !token) {
+      return {
+        success: false,
+        message: "Login failed. Please try again.",
+      };
+    }
 
     await setTokenInCookies("accessToken", accessToken);
     await setTokenInCookies("refreshToken", refreshToken);
