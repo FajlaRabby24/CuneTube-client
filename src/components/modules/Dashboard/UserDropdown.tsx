@@ -7,15 +7,48 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UserInfo } from "@/types/user.types";
+import { deleteCookie, getCookie } from "@/lib/cookieUtils";
+import { IUserInfo } from "@/services/Auth/getMe.service";
+import { logoutSession } from "@/services/Auth/logoutSession.service";
 import { Key, LogOut, Settings, User2Icon } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import Swal from "sweetalert2";
 
-interface UserDropdownProps {
-  userInfo: UserInfo;
-}
+const UserDropdown = ({ userInfo }: { userInfo: IUserInfo }) => {
+  const router = useRouter();
+  const handleLogout = async () => {
+    try {
+      const token = await getCookie("better-auth.session_token");
+      const currentSessionIdAndToken = userInfo.sessions.filter(
+        (session) => session.token === token,
+      )[0];
 
-const UserDropdown = ({ userInfo }: UserDropdownProps) => {
+      if (currentSessionIdAndToken) {
+        const result = await logoutSession(
+          currentSessionIdAndToken.id,
+          currentSessionIdAndToken.token,
+        );
+
+        if (result.success) {
+          // Delete cookies AFTER successful logout
+          await deleteCookie("refreshToken");
+          await deleteCookie("better-auth.session_token");
+          await deleteCookie("accessToken");
+
+          // THEN redirect
+          router.push("/login");
+        } else {
+          toast.error(result.message || "Logout failed");
+        }
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Logout failed");
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -69,7 +102,21 @@ const UserDropdown = ({ userInfo }: UserDropdownProps) => {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem
-          onClick={() => {}}
+          onClick={() => {
+            Swal.fire({
+              title: "Are you sure?",
+              text: "You won't be able to revert this!",
+              icon: "warning",
+              showCancelButton: true,
+              confirmButtonColor: "#3085d6",
+              cancelButtonColor: "#d33",
+              confirmButtonText: "Yes, delete it!",
+            }).then((result) => {
+              if (result.isConfirmed) {
+                handleLogout();
+              }
+            });
+          }}
           className="cursor-pointer text-red-600"
         >
           <LogOut className="mr-2 h-4 w-4" />

@@ -11,11 +11,6 @@ if (!BASE_API_URL) {
   throw new Error("NEXT_PUBLIC_API_BASE_URL is not defined");
 }
 
-export interface ILogoutSessionResponse {
-  success: boolean;
-  message: string;
-}
-
 export async function logoutSession(sessionId: string, token: string) {
   const parsedPayload = sessionDeleteSchema.safeParse({ sessionId, token });
 
@@ -35,14 +30,13 @@ export async function logoutSession(sessionId: string, token: string) {
       return { success: false, message: "Not authenticated" };
     }
 
-    const res = await httpClient.delete<ILogoutSessionResponse>(
-      `/auth/logout/${sessionId}/${token}`,
-      {
-        headers: {
-          Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,
-        },
+    const res = await httpClient.delete(`/auth/logout/${sessionId}/${token}`, {
+      headers: {
+        Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,
       },
-    );
+    });
+
+    console.log({ res }, "res in logout session service");
 
     return { success: res.success, message: res.message };
   } catch (error) {

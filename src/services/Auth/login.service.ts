@@ -32,7 +32,6 @@ export const loginAction = async (
       message: firstError,
     };
   }
-  console.log({ userAgent }, "user agent in login service");
   try {
     const response = await httpClient.post<ILoginResponse>("/auth/login", {
       ...parsedPayload.data,
@@ -44,10 +43,6 @@ export const loginAction = async (
       token,
       user: { needPasswordChange, email, role },
     } = response.data;
-    console.log({
-      success: false,
-      message: response.message,
-    });
 
     if (!accessToken || !refreshToken || !token) {
       return {

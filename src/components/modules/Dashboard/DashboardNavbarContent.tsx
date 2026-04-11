@@ -3,8 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { IUserInfo } from "@/services/Auth/getMe.service";
 import { NavSection } from "@/types/dashboard.types";
-import { UserInfo } from "@/types/user.types";
 import { Menu, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import DashboardMobileSidebar from "./DashboardMobileSidebar";
@@ -12,7 +12,7 @@ import NotificationDropdown from "./NotificationDropdown";
 import UserDropdown from "./UserDropdown";
 
 interface DashboardNavbarProps {
-  userInfo: UserInfo;
+  userInfo: IUserInfo;
   navItems: NavSection[];
   dashboardHome: string;
 }
