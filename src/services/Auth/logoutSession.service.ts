@@ -2,6 +2,7 @@
 
 import { envVars } from "@/config/env";
 import { httpClient } from "@/lib/axios/httpClient";
+import { sessionDeleteSchema } from "@/zod/auth.validation";
 import { cookies } from "next/headers";
 
 const BASE_API_URL = envVars.NEXT_PUBLIC_API_BASE_URL;
@@ -15,7 +16,16 @@ export interface ILogoutSessionResponse {
   message: string;
 }
 
-export async function logoutSession(sessionId: string) {
+export async function logoutSession(sessionId: string, token: string) {
+  const parsedPayload = sessionDeleteSchema.safeParse({ sessionId, token });
+
+  if (!parsedPayload.success) {
+    const firstError = parsedPayload.error.issues[0].message || "Invalid input";
+    return {
+      success: false,
+      message: firstError,
+    };
+  }
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("accessToken")?.value;
@@ -26,7 +36,7 @@ export async function logoutSession(sessionId: string) {
     }
 
     const res = await httpClient.delete<ILogoutSessionResponse>(
-      `/auth/logout/${sessionId}`,
+      `/auth/logout/${sessionId}/${token}`,
       {
         headers: {
           Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,

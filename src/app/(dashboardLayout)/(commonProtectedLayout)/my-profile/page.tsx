@@ -5,9 +5,13 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
+import { cookies } from "next/headers";
 
 const MyProfilePage = async () => {
   const queryClient = new QueryClient();
+
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get("better-auth.session_token")?.value;
 
   await queryClient.prefetchQuery({
     queryKey: ["my-profile"],
@@ -15,7 +19,7 @@ const MyProfilePage = async () => {
   });
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <MyProfile />
+      <MyProfile sessionToken={sessionToken} />
     </HydrationBoundary>
   );
 };

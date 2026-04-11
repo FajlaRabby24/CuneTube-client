@@ -1,6 +1,7 @@
 import {
   loginZodSchema,
   registerZodSchema,
+  sessionDeleteSchema,
   verifyEmailSchema,
 } from "@/zod/auth.validation";
 import z from "zod";
@@ -9,6 +10,7 @@ export type ILoginPayload = z.infer<typeof loginZodSchema>;
 
 export type IRegisterPayload = z.infer<typeof registerZodSchema>;
 export type IVerifyEmailOtpPayload = z.infer<typeof verifyEmailSchema>;
+export type ISessionDeletePayload = z.infer<typeof sessionDeleteSchema>;
 
 export interface ILoginResponse {
   token: string;

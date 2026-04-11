@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserRole } from "@/lib/authUtilts";
 import { getMyProfile } from "@/services/Auth/getMyProfile.service";
 import { logoutSession } from "@/services/Auth/logoutSession.service";
+import { ISessionDeletePayload } from "@/types/auth.types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CalendarIcon,
@@ -19,8 +20,9 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
+import Swal from "sweetalert2";
 
-const MyProfile = () => {
+const MyProfile = ({ sessionToken }: { sessionToken: string | undefined }) => {
   const queryClient = useQueryClient();
   const { data: profile, isLoading } = useQuery({
     queryKey: ["my-profile"],
@@ -28,7 +30,8 @@ const MyProfile = () => {
   });
 
   const logoutSingleMutation = useMutation({
-    mutationFn: logoutSession,
+    mutationFn: ({ sessionId, token }: ISessionDeletePayload) =>
+      logoutSession(sessionId, token),
     onSuccess: (data) => {
       if (data.success) {
         toast.success(data.message);
@@ -284,7 +287,7 @@ const MyProfile = () => {
                     >
                       <div className="flex items-center gap-3">
                         {/* Green dot for current session */}
-                        {index === 0 && (
+                        {sessionToken && sessionToken === session.token && (
                           <span className="relative flex size-2">
                             <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                             <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
@@ -298,15 +301,32 @@ const MyProfile = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-muted-foreground">
-                          {index === 0 ? "Current" : "Other"}
+                          {sessionToken && sessionToken === session.token
+                            ? "Current"
+                            : "Other"}
                         </span>
-                        {index !== 0 && (
+                        {sessionToken && sessionToken !== session.token && (
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() =>
-                              logoutSingleMutation.mutate(session.id)
-                            }
+                            onClick={() => {
+                              Swal.fire({
+                                title: "Are you sure?",
+                                text: "You won't be able to revert this!",
+                                icon: "warning",
+                                showCancelButton: true,
+                                confirmButtonColor: "#3085d6",
+                                cancelButtonColor: "#d33",
+                                confirmButtonText: "Yes, delete it!",
+                              }).then((result) => {
+                                if (result.isConfirmed) {
+                                  logoutSingleMutation.mutate({
+                                    sessionId: session.id,
+                                    token: session.token,
+                                  });
+                                }
+                              });
+                            }}
                             disabled={logoutSingleMutation.isPending}
                             className="size-8 text-muted-foreground hover:text-red-500 cursor-pointer"
                           >

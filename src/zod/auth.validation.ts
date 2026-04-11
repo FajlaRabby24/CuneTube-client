@@ -62,3 +62,8 @@ export const resetPasswordSchema = z.object({
     .string()
     .min(8, "New password must be at least 8 characters long"),
 });
+
+export const sessionDeleteSchema = z.object({
+  sessionId: z.string("Session ID must be a string"),
+  token: z.string("Token must be a string"),
+});
