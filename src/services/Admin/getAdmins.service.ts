@@ -1,16 +1,9 @@
 "use server";
 
-import { envVars } from "@/config/env";
 import { httpClient } from "@/lib/axios/httpClient";
 import { cookies } from "next/headers";
 
-const BASE_API_URL = envVars.NEXT_PUBLIC_API_BASE_URL;
-
-if (!BASE_API_URL) {
-  throw new Error("NEXT_PUBLIC_API_BASE_URL is not defined");
-}
-
-export interface IAdmin {
+export interface IAdminUser {
   id: string;
   name: string;
   email: string;
@@ -26,27 +19,30 @@ export interface IAdmin {
   phoneNumber: string | null;
   bannedAt: string | null;
   needPasswordChange: boolean;
-  subscription: unknown | null;
 }
 
-export interface IGetAdminsApiResponse {
-  success: boolean;
-  message: string;
-  data: {
-    data: IAdmin[];
-    meta: {
-      page: number;
-      limit: number;
-      total: number;
-      totalPages: number;
-    };
+export interface IAdminListItem {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  isActive: boolean;
+  isBanned: boolean;
+  image: string | null;
+  createdAt: string;
+  admin: {
+    id: string;
   };
 }
 
-export interface IGetAdminByIdResponse {
-  success: boolean;
-  message: string;
-  data: IAdmin;
+export interface IAdminDetails {
+  id: string;
+  userId: string;
+  designation: string | null;
+  address: string | null;
+  createdAt: string;
+  updatedAt: string;
+  user: IAdminUser;
 }
 
 export async function getAllAdmins(queryString: string = "") {
@@ -60,12 +56,14 @@ export async function getAllAdmins(queryString: string = "") {
     }
 
     const url = `/admin/admins${queryString ? `?${queryString}` : ""}`;
-    const res = await httpClient.get<IGetAdminsApiResponse>(url, {
+    const res = await httpClient.get<IAdminListItem[]>(url, {
       headers: {
         Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,
       },
     });
-    return res.data ?? null;
+
+    // console.log(res, "get admin service");
+    return res ?? null;
   } catch (error) {
     console.error("Error fetching admins:", error);
     return null;
@@ -81,9 +79,8 @@ export async function getAdminById(adminId: string) {
     if (!accessToken) {
       return null;
     }
-
     const url = `/admin/admins/${adminId}`;
-    const res = await httpClient.get<IGetAdminByIdResponse>(url, {
+    const res = await httpClient.get<IAdminDetails>(url, {
       headers: {
         Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,
       },

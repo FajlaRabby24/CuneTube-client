@@ -37,18 +37,15 @@ import {
 } from "@/components/ui/table";
 
 import {
-  getAllAdmins,
   getAdminById,
-  IGetAdminByIdResponse,
-  IGetAdminsApiResponse,
-  IAdmin,
+  getAllAdmins,
+  IAdminListItem,
 } from "@/services/Admin/getAdmins.service";
 
 import { useQuery } from "@tanstack/react-query";
 
 import {
   CalendarIcon,
-  CreditCardIcon,
   MailIcon,
   MoreHorizontalIcon,
   PhoneIcon,
@@ -93,20 +90,17 @@ const AdminManagement = ({ initialQueryString }: AdminManagementProps) => {
     queryParams.set("page", String(page));
   }
 
-  const {
-    data: adminsData,
-    isLoading,
-  } = useQuery<IGetAdminsApiResponse | null>({
+  const { data: adminsData, isLoading } = useQuery({
     queryKey: ["admin-admins", page, debouncedSearch],
     queryFn: () => getAllAdmins(queryParams.toString()),
   });
+  // console.log(adminsData, "adminsData");
 
-  const { data: selectedAdmin, isLoading: isLoadingAdmin } =
-    useQuery<IGetAdminByIdResponse | null>({
-      queryKey: ["admin-admin", selectedAdminId],
-      queryFn: () => getAdminById(selectedAdminId!),
-      enabled: !!selectedAdminId && isDetailsOpen,
-    });
+  const { data: selectedAdmin, isLoading: isLoadingAdmin } = useQuery({
+    queryKey: ["admin-admin", selectedAdminId],
+    queryFn: () => getAdminById(selectedAdminId!),
+    enabled: !!selectedAdminId && isDetailsOpen,
+  });
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(initialQueryString);
@@ -128,9 +122,9 @@ const AdminManagement = ({ initialQueryString }: AdminManagementProps) => {
     setIsDetailsOpen(true);
   };
 
-  const admins = adminsData?.data?.data || [];
+  const admins = adminsData?.data || [];
 
-  const meta = adminsData?.data?.meta || {
+  const meta = adminsData?.meta || {
     page: 1,
     limit: 10,
     total: 0,
@@ -175,7 +169,6 @@ const AdminManagement = ({ initialQueryString }: AdminManagementProps) => {
               <TableHead>Admin</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Verified</TableHead>
               <TableHead>Joined</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -184,14 +177,14 @@ const AdminManagement = ({ initialQueryString }: AdminManagementProps) => {
             {admins.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={5}
                   className="py-8 text-center text-muted-foreground"
                 >
                   No admins found
                 </TableCell>
               </TableRow>
             ) : (
-              admins.map((admin: IAdmin) => (
+              admins?.map((admin: IAdminListItem) => (
                 <TableRow key={admin.id}>
                   <TableCell>
                     <div className="flex items-center gap-3">
@@ -239,27 +232,6 @@ const AdminManagement = ({ initialQueryString }: AdminManagementProps) => {
                         <Badge variant="secondary">Inactive</Badge>
                       )}
                     </div>
-                    {admin.bannedReason && (
-                      <p className="mt-1 text-xs text-red-500">
-                        {admin.bannedReason}
-                      </p>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {admin.emailVerified ? (
-                      <Badge
-                        variant="outline"
-                        className="border-green-500 text-green-500"
-                      >
-                        <UserCheckIcon className="mr-1 size-3" />
-                        Verified
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="text-destructive">
-                        <UserXIcon className="mr-1 size-3" />
-                        Unverified
-                      </Badge>
-                    )}
                   </TableCell>
                   <TableCell className="text-sm">
                     {new Date(admin.createdAt).toLocaleDateString()}
@@ -280,7 +252,7 @@ const AdminManagement = ({ initialQueryString }: AdminManagementProps) => {
                         className="w-40 space-y-1"
                       >
                         <DropdownMenuItem
-                          onClick={() => handleViewDetails(admin.id)}
+                          onClick={() => handleViewDetails(admin.admin.id)}
                         >
                           <UserIcon className="mr-2 size-4" />
                           View Details
@@ -299,7 +271,8 @@ const AdminManagement = ({ initialQueryString }: AdminManagementProps) => {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-muted-foreground">
               Showing {(meta.page - 1) * meta.limit + 1} to{" "}
-              {Math.min(meta.page * meta.limit, meta.total)} of {meta.total} admins
+              {Math.min(meta.page * meta.limit, meta.total)} of {meta.total}{" "}
+              admins
             </p>
             <Pagination>
               <PaginationContent>
@@ -365,50 +338,50 @@ const AdminManagement = ({ initialQueryString }: AdminManagementProps) => {
             <div className="flex items-center justify-center py-8">
               <div className="size-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
             </div>
-          ) : selectedAdmin?.data ? (
+          ) : selectedAdmin ? (
             <div className="space-y-6">
               {/* Profile Section */}
               <div className="flex items-center gap-4">
                 <div className="size-20 overflow-hidden rounded-full bg-muted">
-                  {selectedAdmin.data.image ? (
+                  {selectedAdmin.user.image ? (
                     <Image
-                      src={selectedAdmin.data.image}
-                      alt={selectedAdmin.data.name}
+                      src={selectedAdmin.user.image}
+                      alt={selectedAdmin.user.name}
                       width={80}
                       height={80}
                       className="size-full object-cover"
                     />
                   ) : (
                     <div className="flex size-full items-center justify-center text-2xl font-medium">
-                      {selectedAdmin.data.name.charAt(0).toUpperCase()}
+                      {selectedAdmin.user.name.charAt(0).toUpperCase()}
                     </div>
                   )}
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold">
-                    {selectedAdmin.data.name}
+                    {selectedAdmin.user.name}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {selectedAdmin.data.email}
+                    {selectedAdmin.user.email}
                   </p>
                   <div className="mt-2 flex items-center gap-2">
-                    {selectedAdmin.data.isBanned ? (
+                    {selectedAdmin.user.isBanned ? (
                       <Badge variant="destructive">Banned</Badge>
-                    ) : selectedAdmin.data.isActive ? (
+                    ) : selectedAdmin.user.isActive ? (
                       <Badge className="bg-green-500">Active</Badge>
                     ) : (
                       <Badge variant="secondary">Inactive</Badge>
                     )}
                     <Badge
                       className={
-                        selectedAdmin.data.role === "SUPER_ADMIN"
+                        selectedAdmin.user.role === "SUPER_ADMIN"
                           ? "bg-purple-500"
                           : "bg-blue-500"
                       }
                     >
-                      {selectedAdmin.data.role.replace("_", " ")}
+                      {selectedAdmin.user.role.replace("_", " ")}
                     </Badge>
-                    {selectedAdmin.data.emailVerified ? (
+                    {selectedAdmin.user.emailVerified ? (
                       <Badge
                         variant="outline"
                         className="border-green-500 text-green-500"
@@ -426,7 +399,40 @@ const AdminManagement = ({ initialQueryString }: AdminManagementProps) => {
                 </div>
               </div>
 
-              {/* Information Grid */}
+              {/* Admin Specific Details */}
+              <div className="grid gap-4 rounded-lg border p-4">
+                <h4 className="font-semibold">Admin Information</h4>
+
+                <div className="grid gap-3">
+                  {selectedAdmin.designation && (
+                    <div className="flex items-center gap-3">
+                      <ShieldIcon className="size-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">
+                          Designation
+                        </p>
+                        <p className="text-sm font-medium">
+                          {selectedAdmin.designation}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedAdmin.address && (
+                    <div className="flex items-center gap-3">
+                      <UserIcon className="size-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Address</p>
+                        <p className="text-sm font-medium">
+                          {selectedAdmin.address}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* User Information */}
               <div className="grid gap-4 rounded-lg border p-4">
                 <h4 className="font-semibold">Personal Information</h4>
 
@@ -436,12 +442,12 @@ const AdminManagement = ({ initialQueryString }: AdminManagementProps) => {
                     <div>
                       <p className="text-xs text-muted-foreground">Email</p>
                       <p className="text-sm font-medium">
-                        {selectedAdmin.data.email}
+                        {selectedAdmin.user.email}
                       </p>
                     </div>
                   </div>
 
-                  {selectedAdmin.data.phoneNumber && (
+                  {selectedAdmin.user.phoneNumber && (
                     <div className="flex items-center gap-3">
                       <PhoneIcon className="size-4 text-muted-foreground" />
                       <div>
@@ -449,29 +455,19 @@ const AdminManagement = ({ initialQueryString }: AdminManagementProps) => {
                           Phone Number
                         </p>
                         <p className="text-sm font-medium">
-                          {selectedAdmin.data.phoneNumber}
+                          {selectedAdmin.user.phoneNumber}
                         </p>
                       </div>
                     </div>
                   )}
 
-                  <div className="flex items-center gap-3">
-                    <ShieldIcon className="size-4 text-muted-foreground" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">Role</p>
-                      <p className="text-sm font-medium">
-                        {selectedAdmin.data.role.replace("_", " ")}
-                      </p>
-                    </div>
-                  </div>
-
-                  {selectedAdmin.data.bio && (
+                  {selectedAdmin.user.bio && (
                     <div className="flex items-start gap-3">
                       <UserIcon className="mt-0.5 size-4 text-muted-foreground" />
                       <div>
                         <p className="text-xs text-muted-foreground">Bio</p>
                         <p className="text-sm font-medium">
-                          {selectedAdmin.data.bio}
+                          {selectedAdmin.user.bio}
                         </p>
                       </div>
                     </div>
@@ -490,7 +486,7 @@ const AdminManagement = ({ initialQueryString }: AdminManagementProps) => {
                       <p className="text-xs text-muted-foreground">Joined</p>
                       <p className="text-sm font-medium">
                         {new Date(
-                          selectedAdmin.data.createdAt,
+                          selectedAdmin.user.createdAt,
                         ).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "long",
@@ -508,7 +504,7 @@ const AdminManagement = ({ initialQueryString }: AdminManagementProps) => {
                       </p>
                       <p className="text-sm font-medium">
                         {new Date(
-                          selectedAdmin.data.updatedAt,
+                          selectedAdmin.user.updatedAt,
                         ).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "long",
@@ -518,7 +514,7 @@ const AdminManagement = ({ initialQueryString }: AdminManagementProps) => {
                     </div>
                   </div>
 
-                  {selectedAdmin.data.needPasswordChange && (
+                  {selectedAdmin.user.needPasswordChange && (
                     <div className="flex items-center gap-3">
                       <ShieldIcon className="size-4 text-yellow-500" />
                       <div>

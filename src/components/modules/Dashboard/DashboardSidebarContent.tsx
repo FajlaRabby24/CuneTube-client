@@ -21,7 +21,6 @@ const DashboardSidebarContent = ({
   userInfo,
 }: DashboardSidebarContentProps) => {
   const pathname = usePathname();
-  console.log(navItems);
 
   return (
     <div className="hidden md:flex h-full w-64 flex-col border-r bg-card overflow-y-auto">

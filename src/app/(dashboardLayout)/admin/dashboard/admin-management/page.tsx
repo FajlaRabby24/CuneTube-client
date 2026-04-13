@@ -6,6 +6,8 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 
+// opencode -s ses_27f836a96ffetbgJ8EEDetJVsD
+
 const AdminManagementPage = async ({
   searchParams,
 }: {
