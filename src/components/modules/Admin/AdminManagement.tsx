@@ -18,6 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Pagination,
@@ -36,17 +37,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import {
-  createAdmin,
-  ICreateAdminPayload,
-} from "@/services/Admin/createAdmin.service";
+import { createAdmin } from "@/services/Admin/createAdmin.service";
 import {
   getAdminById,
   getAllAdmins,
   IAdminListItem,
 } from "@/services/Admin/getAdmins.service";
 
+import { createAdminZodSchema } from "@/zod/auth.validation";
+import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery } from "@tanstack/react-query";
+
+const getErrorMessage = (error: unknown): string => {
+  if (typeof error === "string") return error;
+  if (error && typeof error === "object" && "message" in error) {
+    return String(error.message);
+  }
+  return String(error);
+};
 
 import {
   CalendarIcon,
@@ -81,11 +89,6 @@ const AdminManagement = ({ initialQueryString }: AdminManagementProps) => {
   const [selectedAdminId, setSelectedAdminId] = useState<string | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [createForm, setCreateForm] = useState<ICreateAdminPayload>({
-    name: "",
-    email: "",
-    password: "",
-  });
   const [createError, setCreateError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -116,25 +119,33 @@ const AdminManagement = ({ initialQueryString }: AdminManagementProps) => {
     enabled: !!selectedAdminId && isDetailsOpen,
   });
 
-  const createAdminMutation = useMutation({
-    mutationFn: (payload: ICreateAdminPayload) => createAdmin(payload),
-    onSuccess: (data) => {
-      if (data.success) {
-        toast.success(data.message);
-        setIsCreateOpen(false);
-        setCreateForm({ name: "", email: "", password: "" });
-        setCreateError(null);
-      } else {
-        setCreateError(data.message);
+  const { mutateAsync: createAdminMutate, isPending: isCreating } = useMutation(
+    {
+      mutationFn: createAdmin,
+    },
+  );
+
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+    onSubmit: async ({ value }) => {
+      try {
+        const result = await createAdminMutate(value);
+        if (result.success) {
+          toast.success(result.message);
+          setIsCreateOpen(false);
+          form.reset();
+        } else {
+          setCreateError(result.message);
+        }
+      } catch (error) {
+        setCreateError("Failed to create admin. Please try again.");
       }
     },
   });
-
-  const handleCreateSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setCreateError(null);
-    createAdminMutation.mutate(createForm);
-  };
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(initialQueryString);
@@ -594,75 +605,123 @@ const AdminManagement = ({ initialQueryString }: AdminManagementProps) => {
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleCreateSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium">
-                Name
-              </label>
-              <Input
-                id="name"
-                placeholder="Enter admin name"
-                value={createForm.name}
-                onChange={(e) =>
-                  setCreateForm({ ...createForm, name: e.target.value })
-                }
-                required
-                minLength={2}
-              />
-            </div>
+          <form
+            method="POST"
+            action="#"
+            noValidate
+            onSubmit={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              form.handleSubmit();
+            }}
+          >
+            <FieldGroup className="space-y-4">
+              <Field>
+                <form.Field
+                  name="name"
+                  validators={{ onChange: createAdminZodSchema.shape.name }}
+                >
+                  {(field) => (
+                    <div className="space-y-2">
+                      <FieldLabel htmlFor={field.name}>Name</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="Enter admin name"
+                      />
+                      {field.state.meta.isTouched &&
+                        field.state.meta.errors.length > 0 && (
+                          <p className="text-xs text-red-500">
+                            {getErrorMessage(field.state.meta.errors[0])}
+                          </p>
+                        )}
+                    </div>
+                  )}
+                </form.Field>
+              </Field>
 
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter admin email"
-                value={createForm.email}
-                onChange={(e) =>
-                  setCreateForm({ ...createForm, email: e.target.value })
-                }
-                required
-              />
-            </div>
+              <Field>
+                <form.Field
+                  name="email"
+                  validators={{ onChange: createAdminZodSchema.shape.email }}
+                >
+                  {(field) => (
+                    <div className="space-y-2">
+                      <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        type="email"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="Enter admin email"
+                      />
+                      {field.state.meta.isTouched &&
+                        field.state.meta.errors.length > 0 && (
+                          <p className="text-xs text-red-500">
+                            {getErrorMessage(field.state.meta.errors[0])}
+                          </p>
+                        )}
+                    </div>
+                  )}
+                </form.Field>
+              </Field>
 
-            <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium">
-                Password
-              </label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter password (min 8 characters)"
-                value={createForm.password}
-                onChange={(e) =>
-                  setCreateForm({ ...createForm, password: e.target.value })
-                }
-                required
-                minLength={8}
-              />
-            </div>
+              <Field>
+                <form.Field
+                  name="password"
+                  validators={{ onChange: createAdminZodSchema.shape.password }}
+                >
+                  {(field) => (
+                    <div className="space-y-2">
+                      <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        type="password"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="Enter password (min 8 characters)"
+                      />
+                      {field.state.meta.isTouched &&
+                        field.state.meta.errors.length > 0 && (
+                          <p className="text-xs text-red-500">
+                            {getErrorMessage(field.state.meta.errors[0])}
+                          </p>
+                        )}
+                    </div>
+                  )}
+                </form.Field>
+              </Field>
+            </FieldGroup>
 
             {createError && (
-              <p className="text-sm text-red-500">{createError}</p>
+              <p className="mt-4 text-sm text-red-500">{createError}</p>
             )}
 
-            <div className="flex justify-end gap-2">
+            <div className="mt-6 flex justify-end gap-2">
               <Button
                 type="button"
                 variant="outline"
                 className="cursor-pointer"
-                onClick={() => setIsCreateOpen(false)}
+                onClick={() => {
+                  setIsCreateOpen(false);
+                  form.reset();
+                }}
               >
                 Cancel
               </Button>
               <Button
                 className="cursor-pointer"
                 type="submit"
-                disabled={createAdminMutation.isPending}
+                disabled={isCreating}
               >
-                {createAdminMutation.isPending ? "Creating..." : "Create Admin"}
+                {isCreating ? "Creating..." : "Create Admin"}
               </Button>
             </div>
           </form>

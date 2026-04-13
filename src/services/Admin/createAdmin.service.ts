@@ -16,18 +16,6 @@ export interface ICreateAdminPayload {
   password: string;
 }
 
-export interface ICreateAdminResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    id: string;
-    userId: string;
-    name: string;
-    email: string;
-    role: string;
-  };
-}
-
 export async function createAdmin(payload: ICreateAdminPayload) {
   try {
     const cookieStore = await cookies();
@@ -37,18 +25,24 @@ export async function createAdmin(payload: ICreateAdminPayload) {
     if (!accessToken) {
       return { success: false, message: "Unauthorized" };
     }
-
-    const url = `/admin/admins/create-admin`;
-    const res = await httpClient.post<ICreateAdminResponse>(url, payload, {
+    console.log(payload, "payload");
+    const url = `/admin/create-admin`;
+    const res = await httpClient.post(url, payload, {
       headers: {
         Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,
       },
     });
-    return res.data;
+    if (res.success) {
+      return { success: true, message: res.message };
+    }
+
+    return { success: false, message: res.message };
   } catch (error: unknown) {
     console.error("Error creating admin:", error);
     if (error && typeof error === "object" && "response" in error) {
-      const axiosError = error as { response?: { data?: { message?: string } } };
+      const axiosError = error as {
+        response?: { data?: { message?: string } };
+      };
       return {
         success: false,
         message: axiosError.response?.data?.message || "Failed to create admin",

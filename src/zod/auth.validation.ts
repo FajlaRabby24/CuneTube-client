@@ -67,3 +67,9 @@ export const sessionDeleteSchema = z.object({
   sessionId: z.string("Session ID must be a string"),
   token: z.string("Token must be a string"),
 });
+
+export const createAdminZodSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters long"),
+  email: z.email("Email must be a valid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters long"),
+});
