@@ -41,7 +41,7 @@ export interface IGetUsersApiResponse {
   };
 }
 
-export async function getAllUsers(params: URLSearchParams) {
+export async function getAllUsers(queryString: string) {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("accessToken")?.value;
@@ -51,10 +51,7 @@ export async function getAllUsers(params: URLSearchParams) {
       return null;
     }
 
-    const queryString = params.toString();
     const url = `/admin/users${queryString ? `?${queryString}` : ""}`;
-
-    ``;
     const res = await httpClient.get<IGetUsersApiResponse>(url, {
       headers: {
         Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,

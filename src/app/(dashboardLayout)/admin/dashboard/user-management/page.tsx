@@ -9,29 +9,40 @@ import {
 const UserManagementPage = async ({
   searchParams,
 }: {
-  searchParams: Promise<URLSearchParams>;
+  searchParams: Promise<{ [key: string]: string | undefined }>;
 }) => {
   const queryParamsObjects = await searchParams;
 
-  const params = new URLSearchParams();
-  Object.entries(queryParamsObjects).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "") {
-      params.append(key, String(value));
-    }
-  });
+  const queryString = Object.keys(queryParamsObjects)
+    .map((key) => {
+      const value = queryParamsObjects[key];
+      if (value === undefined) {
+        return "";
+      }
+
+      if (Array.isArray(value)) {
+        return value
+          .map((v) => `${encodeURIComponent(key)}=${encodeURIComponent(v)}`)
+          .join("&");
+      }
+
+      return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
+    })
+    .filter(Boolean)
+    .join("&");
 
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: ["admin-users", Object.fromEntries(params)],
-    queryFn: () => getAllUsers(params),
+    queryKey: ["admin-users", queryString],
+    queryFn: () => getAllUsers(queryString),
     staleTime: 1000 * 60 * 60,
     gcTime: 1000 * 60 * 60 * 6,
   });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <UserManagement initialQueryString={params.toString()} />
+      <UserManagement initialQueryString={queryString} />
     </HydrationBoundary>
   );
 };
