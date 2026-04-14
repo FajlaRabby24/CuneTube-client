@@ -49,6 +49,7 @@ import {
   CalendarIcon,
   FilmIcon,
   MoreHorizontalIcon,
+  PlusIcon,
   SearchIcon,
   StarIcon,
   TrashIcon,
@@ -57,6 +58,7 @@ import {
 import Image from "next/image";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
+import { CreateMediaModal } from "./CreateMediaModal";
 
 interface MediaManagementProps {
   initialQueryString: string;
@@ -76,6 +78,7 @@ const MediaManagement = ({ initialQueryString }: MediaManagementProps) => {
     null,
   );
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -190,15 +193,26 @@ const MediaManagement = ({ initialQueryString }: MediaManagementProps) => {
               Manage and monitor all media
             </p>
           </div>
-          <div className="relative w-full sm:w-72">
-            <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search media..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch(searchInput)}
-              className="pl-9"
-            />
+          <div className="flex items-center gap-2">
+            <div className="relative w-full sm:w-72">
+              <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search media..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && handleSearch(searchInput)
+                }
+                className="pl-9"
+              />
+            </div>
+            <Button
+              onClick={() => setIsCreateOpen(true)}
+              className="shrink-0 cursor-pointer"
+            >
+              <PlusIcon className="mr-2 size-4" />
+              Create Media
+            </Button>
           </div>
         </div>
 
@@ -472,8 +486,8 @@ const MediaManagement = ({ initialQueryString }: MediaManagementProps) => {
                     <div>
                       <p className="text-xs text-muted-foreground">Rating</p>
                       <p className="text-sm font-medium">
-                        {selectedMedia.averageRating.toFixed(1)} / 10 (
-                        {selectedMedia.totalReviews} reviews)
+                        {selectedMedia.averageRating?.toFixed(1)} / 10 (
+                        {selectedMedia?.totalReviews} reviews)
                       </p>
                     </div>
                   </div>
@@ -516,6 +530,8 @@ const MediaManagement = ({ initialQueryString }: MediaManagementProps) => {
           )}
         </DialogContent>
       </Dialog>
+
+      <CreateMediaModal open={isCreateOpen} onOpenChange={setIsCreateOpen} />
     </>
   );
 };

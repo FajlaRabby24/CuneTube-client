@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      {
+        protocol: "https",
+        hostname: "example.com",
+      },
     ],
     // Optional: Configure minimum cache TTL (default is 4 hours)
     minimumCacheTTL: 14400,
