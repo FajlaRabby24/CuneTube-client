@@ -60,6 +60,7 @@ import {
 } from "lucide-react";
 
 import { ContentStatus } from "@/lib/enum";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
@@ -226,6 +227,7 @@ const MediaManagement = ({ initialQueryString }: MediaManagementProps) => {
             <TableRow>
               <TableHead>Media</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Pricing Type</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Released</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -280,6 +282,17 @@ const MediaManagement = ({ initialQueryString }: MediaManagementProps) => {
                         <Badge variant="outline">Draft</Badge>
                       )}
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      className={cn(
+                        media.pricingType === "PREMIUM"
+                          ? "bg-orange-600"
+                          : "bg-blue-600",
+                      )}
+                    >
+                      {media.pricingType}
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline">{media.type}</Badge>

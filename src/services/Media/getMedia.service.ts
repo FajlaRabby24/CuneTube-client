@@ -11,6 +11,7 @@ export interface IMediasResponse {
   status: string;
   youtubeStreamUrl: string | null;
   averageRating: number;
+  pricingType: string;
   releaseYear: number;
 }
 
