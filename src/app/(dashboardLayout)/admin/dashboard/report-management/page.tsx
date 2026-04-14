@@ -1,6 +1,10 @@
-import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import ReportManagement from "@/components/modules/Admin/ReportManagement";
 import { getAllReports } from "@/services/Admin/report.service";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
 
 const ReportManagementPage = async ({
   searchParams,
@@ -29,18 +33,18 @@ const ReportManagementPage = async ({
 
   const queryClient = new QueryClient();
 
-  const fetchString = queryString ? queryString.includes("status") ? queryString : `${queryString}&status=PENDING` : "status=PENDING";
-  
+  // const fetchString = queryString ? queryString.includes("status") ? queryString : `${queryString}&status=PENDING` : "status=PENDING";
+
   await queryClient.prefetchQuery({
-    queryKey: ["admin-reports", fetchString],
-    queryFn: () => getAllReports(fetchString),
+    queryKey: ["admin-reports", queryString],
+    queryFn: () => getAllReports(queryString),
     staleTime: 1000 * 60 * 60,
     gcTime: 1000 * 60 * 60 * 6,
   });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <ReportManagement initialQueryString={fetchString} />
+      <ReportManagement initialQueryString={queryString} />
     </HydrationBoundary>
   );
 };
