@@ -1,4 +1,7 @@
+"use server";
+
 import { httpClient } from "@/lib/axios/httpClient";
+import { cookies } from "next/headers";
 
 export interface IDashboardStats {
   users: {
@@ -24,7 +27,18 @@ export interface IDashboardStats {
 
 export const getDashboardStats = async () => {
   try {
-    const res = await httpClient.get<IDashboardStats>("/admin/stats");
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("accessToken")?.value;
+    const sessionToken = cookieStore.get("better-auth.session_token")?.value;
+
+    if (!accessToken) {
+      return null;
+    }
+    const res = await httpClient.get<IDashboardStats>("/admin/stats", {
+      headers: {
+        Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,
+      },
+    });
 
     if (!res.success) {
       return null;
