@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
 
@@ -30,7 +30,7 @@ import {
   createTag,
   deleteTag,
   getAllTags,
-  ITag,
+  ITagResponse,
   updateTag,
 } from "@/services/Admin/tags.service";
 
@@ -58,19 +58,18 @@ const TagManagement = () => {
   const [search, setSearch] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [selectedTag, setSelectedTag] = useState<ITag | null>(null);
+  const [selectedTag, setSelectedTag] = useState<ITagResponse | null>(null);
 
   const [createForm, setCreateForm] = useState({ name: "", slug: "" });
   const [editForm, setEditForm] = useState({ name: "", slug: "" });
 
-  const { data: tags = [], isLoading } = useQuery<ITag[]>({
+  const { data: tags = [], isLoading } = useQuery<ITagResponse[]>({
     queryKey: ["admin-tags"],
-    queryFn: () => getAllTags() as Promise<ITag[]>,
+    queryFn: () => getAllTags() as Promise<ITagResponse[]>,
   });
 
   const createMutation = useMutation({
-    mutationFn: (payload: { name: string; slug: string }) =>
-      createTag(payload),
+    mutationFn: (payload: { name: string; slug: string }) => createTag(payload),
     onSuccess: (res) => {
       if (res.success) {
         toast.success("Tag created successfully");
@@ -118,13 +117,13 @@ const TagManagement = () => {
     onError: () => toast.error("Failed to delete tag"),
   });
 
-  const handleOpenEdit = (tag: ITag) => {
+  const handleOpenEdit = (tag: ITagResponse) => {
     setSelectedTag(tag);
     setEditForm({ name: tag.name, slug: tag.slug });
     setIsEditOpen(true);
   };
 
-  const handleDelete = (tag: ITag) => {
+  const handleDelete = (tag: ITagResponse) => {
     Swal.fire({
       title: `Delete tag "${tag.name}"?`,
       text: "This will remove the tag from all associated media and reviews.",
@@ -221,7 +220,7 @@ const TagManagement = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredTags.map((tag: ITag) => (
+                filteredTags.map((tag: ITagResponse) => (
                   <TableRow key={tag.id}>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -353,9 +352,7 @@ const TagManagement = () => {
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>Edit Tag</DialogTitle>
-            <DialogDescription>
-              Update the tag name and slug.
-            </DialogDescription>
+            <DialogDescription>Update the tag name and slug.</DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleEditSubmit} className="space-y-4">

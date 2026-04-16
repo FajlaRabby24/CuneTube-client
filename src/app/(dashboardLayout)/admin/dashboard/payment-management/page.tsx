@@ -46,3 +46,5 @@ const PaymentManagementPage = async ({
 };
 
 export default PaymentManagementPage;
+
+// TODO: tags and payment management

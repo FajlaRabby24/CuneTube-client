@@ -1,14 +1,7 @@
 "use server";
 
-import { envVars } from "@/config/env";
 import { httpClient } from "@/lib/axios/httpClient";
 import { cookies } from "next/headers";
-
-const BASE_API_URL = envVars.NEXT_PUBLIC_API_BASE_URL;
-
-if (!BASE_API_URL) {
-  throw new Error("NEXT_PUBLIC_API_BASE_URL is not defined");
-}
 
 export interface IPaymentUser {
   id: string;
@@ -17,7 +10,7 @@ export interface IPaymentUser {
   image: string | null;
 }
 
-export interface IPayment {
+export interface IPaymentResponse {
   id: string;
   userId: string;
   subscriptionId: string | null;
@@ -37,21 +30,7 @@ export interface IPayment {
   subscription?: any;
 }
 
-export interface IPaymentMeta {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
-
-export interface IGetPaymentsResponse {
-  success: boolean;
-  message: string;
-  data: IPayment[];
-  meta: IPaymentMeta;
-}
-
-export async function getAllPayments(queryString: string = ""): Promise<IGetPaymentsResponse | null> {
+export async function getAllPayments(queryString: string = "") {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("accessToken")?.value;
@@ -61,16 +40,14 @@ export async function getAllPayments(queryString: string = ""): Promise<IGetPaym
       return null;
     }
 
-    const url = `/payment/admin${queryString ? `?${queryString}` : ""}`;
-    const res = await httpClient.get<IGetPaymentsResponse>(url, {
+    const url = `/payments/admin${queryString ? `?${queryString}` : ""}`;
+    const res = await httpClient.get<IPaymentResponse[]>(url, {
       headers: {
         Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,
       },
     });
 
-    console.log(res, "get all payments response");
-
-    return (res as any) ?? null;
+    return res ?? null;
   } catch (error) {
     console.error("Error fetching admin payments:", error);
     return null;

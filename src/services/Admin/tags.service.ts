@@ -3,7 +3,7 @@
 import { httpClient } from "@/lib/axios/httpClient";
 import { cookies } from "next/headers";
 
-export interface ITag {
+export interface ITagResponse {
   id: string;
   name: string;
   slug: string;
@@ -21,11 +21,11 @@ async function getAuthHeaders() {
   return { accessToken, sessionToken };
 }
 
-export async function getAllTags(): Promise<ITag[] | null> {
+export async function getAllTags(): Promise<ITagResponse[] | null> {
   try {
     const { accessToken, sessionToken } = await getAuthHeaders();
 
-    const res = await httpClient.get<ITag[]>("/tags", {
+    const res = await httpClient.get<ITagResponse[]>("/tags", {
       headers: accessToken
         ? {
             Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,
@@ -33,11 +33,18 @@ export async function getAllTags(): Promise<ITag[] | null> {
         : undefined,
     });
 
-    return (res.data as ITag[]) ?? null;
+    return (res.data as ITagResponse[]) ?? null;
   } catch (error) {
     console.error("Error fetching tags:", error);
     return null;
   }
+}
+
+export interface ICreateTagResponse {
+  id: string;
+  name: string;
+  slug: string;
+  createdAt: string;
 }
 
 export async function createTag(payload: {
@@ -49,18 +56,24 @@ export async function createTag(payload: {
 
     if (!accessToken) return { success: false, message: "Not authenticated" };
 
-    const res = await httpClient.post("/tags", payload, {
+    const res = await httpClient.post<ICreateTagResponse>("/tags", payload, {
       headers: {
         Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,
       },
     });
 
-    return { success: res.success, message: res.message };
+    if (!res.success) {
+      return { success: false, message: res.message };
+    }
+
+    return { success: true, message: res.message };
   } catch (error) {
     console.error("Error creating tag:", error);
     return { success: false, message: "Failed to create tag" };
   }
 }
+
+export type IUpdateTagResponse = ITagResponse;
 
 export async function updateTag(
   tagId: string,
@@ -71,13 +84,21 @@ export async function updateTag(
 
     if (!accessToken) return { success: false, message: "Not authenticated" };
 
-    const res = await httpClient.patch(`/tags/${tagId}`, payload, {
-      headers: {
-        Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,
+    const res = await httpClient.patch<IUpdateTagResponse>(
+      `/tags/${tagId}`,
+      payload,
+      {
+        headers: {
+          Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,
+        },
       },
-    });
+    );
 
-    return { success: res.success, message: res.message };
+    if (!res.success) {
+      return { success: false, message: res.message };
+    }
+
+    return { success: true, message: res.message };
   } catch (error) {
     console.error("Error updating tag:", error);
     return { success: false, message: "Failed to update tag" };
@@ -98,7 +119,11 @@ export async function deleteTag(
       },
     });
 
-    return { success: res.success, message: res.message };
+    if (!res.success) {
+      return { success: false, message: res.message };
+    }
+
+    return { success: true, message: res.message };
   } catch (error) {
     console.error("Error deleting tag:", error);
     return { success: false, message: "Failed to delete tag" };
