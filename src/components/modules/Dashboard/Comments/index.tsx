@@ -1,22 +1,20 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { 
-  MessageSquareIcon, 
-  MoreHorizontalIcon, 
-  SearchIcon, 
-  ThumbsUpIcon, 
-  Trash2Icon, 
-  Edit3Icon,
+import {
   ChevronLeftIcon,
   ChevronRightIcon,
+  Edit3Icon,
   ExternalLinkIcon,
-  MessageCircleIcon
+  MessageCircleIcon,
+  MoreHorizontalIcon,
+  SearchIcon,
+  ThumbsUpIcon,
+  Trash2Icon
 } from "lucide-react";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
@@ -38,7 +36,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -47,8 +44,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 
-import { getUserComments, deleteUserComment, updateUserComment, IComment } from "@/services/Dashboard/comment.service";
+import { Badge } from "@/components/ui/badge";
+import { deleteUserComment, getUserComments, IComment, updateUserComment } from "@/services/Dashboard/comment.service";
 
 interface CommentsProps {
   initialQueryString: string;
@@ -253,7 +252,7 @@ const Comments = ({ initialQueryString }: CommentsProps) => {
                           <DropdownMenuItem onClick={() => handleEdit(comment)}>
                             <Edit3Icon className="mr-2 size-4" /> Edit
                           </DropdownMenuItem>
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             className="text-destructive focus:text-destructive"
                             onClick={() => handleDelete(comment)}
                           >
