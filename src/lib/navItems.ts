@@ -84,17 +84,17 @@ export const userNavItems: NavSection[] = [
         icon: "Star",
       },
       {
-        title: "Comments",
+        title: "Comments", // TODO:  check in desktop
         href: "/dashboard/comments",
         icon: "MessageSquare",
       },
       {
-        title: "Subscriptions",
+        title: "Subscriptions", // TODO:  check in desktop
         href: "/dashboard/subscriptions",
         icon: "Calendar",
       },
       {
-        title: "Watchlist",
+        title: "Watchlist", // TODO:  check in desktop
         href: "/dashboard/watchlist",
         icon: "Heart",
       },
