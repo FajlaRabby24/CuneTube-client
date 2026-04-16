@@ -74,12 +74,12 @@ export const userNavItems: NavSection[] = [
   {
     items: [
       {
-        title: "Payments",   // TODO:  check in decktop
+        title: "Payments",   // TODO:  check in desktop
         href: "/dashboard/payments",
         icon: "CreditCard",
       },
       {
-        title: "Reviews",
+        title: "Reviews", // TODO:  check in desktop
         href: "/dashboard/reviews",
         icon: "Star",
       },
