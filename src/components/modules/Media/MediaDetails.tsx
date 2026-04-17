@@ -7,9 +7,11 @@ import {
   PlusIcon,
   StarIcon,
   UserIcon,
+  XIcon,
 } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
+import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,22 +23,63 @@ interface MediaDetailsProps {
 }
 
 const MediaDetails = ({ media }: MediaDetailsProps) => {
-  console.log(media, "media details");
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoId = getYouTubeVideoId(media.youtubeStreamUrl);
+
   return (
     <div className="min-h-screen bg-slate-950 text-white pb-20">
-      {/* Hero Section with Backdrop */}
-      <div className="relative h-[60vh] md:h-[80vh] w-full overflow-hidden">
-        {/* Backdrop Image */}
-        <div className="absolute inset-0 z-0">
-          <Image
-            src={`https://img.youtube.com/vi/${getYouTubeVideoId(media.youtubeStreamUrl)}/hqdefault.jpg`}
-            alt={media.title}
-            fill
-            priority
-            className="object-cover opacity-40 blur-[2px]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent z-10" />
-        </div>
+      {/* Hero Section with Backdrop / Player */}
+      <div className="relative h-[60vh] md:h-[80vh] w-full overflow-hidden bg-black">
+        <AnimatePresence mode="wait">
+          {!isPlaying ? (
+            <motion.div
+              key="backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="absolute inset-0 z-0"
+            >
+              <Image
+                src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+                alt={media.title}
+                fill
+                priority
+                className="object-cover opacity-40 blur-[2px]"
+                onError={(e) => {
+                  // Fallback if maxresdefault doesn't exist
+                  const target = e.target as HTMLImageElement;
+                  target.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent z-10" />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="player"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-30 flex items-center justify-center bg-black"
+            >
+              <iframe
+                src={`https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0`}
+                title={media.title}
+                className="w-full h-full border-none"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsPlaying(false)}
+                className="absolute top-6 right-6 size-12 rounded-full bg-black/50 backdrop-blur-md text-white hover:bg-white/20 transition-all z-40 border border-white/10"
+              >
+                <XIcon className="size-6" />
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Content Container */}
         <div className="container relative z-20 mx-auto px-4 h-full flex flex-col justify-end pb-12">
@@ -105,7 +148,10 @@ const MediaDetails = ({ media }: MediaDetailsProps) => {
               </div>
 
               <div className="flex flex-wrap gap-4 pt-4">
-                <Button className="h-14 px-8 rounded-2xl bg-primary text-white hover:bg-white hover:text-primary transition-all duration-300 font-black uppercase tracking-widest text-xs">
+                <Button
+                  onClick={() => setIsPlaying(true)}
+                  className="h-14 px-8 rounded-2xl bg-primary text-white hover:bg-white hover:text-primary transition-all duration-300 font-black uppercase tracking-widest text-xs cursor-pointer"
+                >
                   Watch Now
                 </Button>
                 <Button
