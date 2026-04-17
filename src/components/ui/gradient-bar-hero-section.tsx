@@ -2,6 +2,9 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "./button";
+import { Input } from "./input";
 
 interface AvatarProps {
   imageSrc: string;
@@ -50,61 +53,35 @@ const TrustElements: React.FC = () => {
   );
 };
 
-const WaitlistForm: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+const MovieSearchForm: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !email.includes("@")) return;
+    if (!searchTerm.trim()) return;
 
-    setIsSubmitting(true);
-
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
-      setEmail("");
-
-      setTimeout(() => {
-        setIsSubmitted(false);
-      }, 3000);
-    }, 1500);
+    router.push(`/media?searchTem=${encodeURIComponent(searchTerm)}`);
   };
 
   return (
     <div className="relative z-10 w-full">
-      {!isSubmitted ? (
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Search for a movie..."
-            className="flex-1 px-6 sm:px-8 py-3 sm:py-4 rounded-l-full bg-gray-900/60 border border-gray-700 focus:border-white outline-none text-white text-sm sm:text-base shadow-[0_0_15px_rgba(0,0,0,0.3)] backdrop-blur-sm transition-all duration-300"
-            required
-          />
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className={`px-6 sm:px-8 py-3 cursor-pointer sm:py-4 rounded-r-full transition-all duration-300 transform hover:scale-105 whitespace-nowrap text-sm sm:text-base ${
-              isSubmitting
-                ? "bg-gray-600 text-gray-300 cursor-not-allowed"
-                : "bg-white hover:bg-gray-100 text-black"
-            }`}
-          >
-            {isSubmitting ? (
-              <div className="h-4  w-4 sm:h-5 sm:w-5 border-2 border-gray-300 border-t-black  font-bold rounded-full animate-spin mx-auto" />
-            ) : (
-              "Search"
-            )}
-          </button>
-        </form>
-      ) : (
-        <div className="bg-green-500/20 border border-green-500/30 text-green-300 rounded-full px-6 sm:px-8 py-3 sm:py-4 text-center animate-fade-in text-sm sm:text-base">
-          Thanks! We&apos;ll notify you when we launch.
-        </div>
-      )}
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row">
+        <Input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search for a movie..."
+          className="flex-1 px-6 sm:px-8 py-3 sm:py-4 rounded-l-full rounded-r-none bg-gray-900/60 border border-gray-700 focus:border-white outline-none text-white text-sm sm:text-base shadow-[0_0_15px_rgba(0,0,0,0.3)] backdrop-blur-sm transition-all duration-300 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
+          required
+        />
+        <Button
+          type="submit"
+          className="px-6 sm:px-8 py-3 cursor-pointer sm:py-4 rounded-r-full rounded-l-none transition-all duration-300 transform hover:scale-105 whitespace-nowrap text-sm sm:text-base bg-white hover:bg-gray-100 text-black h-auto"
+        >
+          Search
+        </Button>
+      </form>
     </div>
   );
 };
@@ -177,24 +154,24 @@ export const GradientBarHeroSection: React.FC = () => {
 
           <h1 className="w-full text-white leading-tight tracking-tight mb-2 sm:mb-3 animate-fade-in px-4">
             <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl whitespace-nowrap font-medium">
-              Discover, Rate & Review Movies
+              Explore The World Of Cinema
             </span>
             <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl whitespace-nowrap italic">
-              One Cinema. Endless Stories.
+              Search, Rate & Review Movies.
             </span>
           </h1>
 
           <div className="mb-2 sm:mb-4 px-4">
             <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-400 leading-relaxed animate-fade-in">
-              Be the first to explore our curated movie library.
+              Find your favorite movies and share your thoughts with the world.
             </p>
             <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-400 leading-relaxed animate-fade-in mt-2">
-              Join the waitlist and get exclusive early access.
+              Start searching for your next cinematic adventure below.
             </p>
           </div>
 
           <div className="w-full max-w-2xl mx-auto mb-6 sm:mb-6 md:mb-6 px-4">
-            <WaitlistForm />
+            <MovieSearchForm />
           </div>
         </div>
 
