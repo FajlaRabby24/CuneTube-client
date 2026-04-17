@@ -20,6 +20,7 @@ import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { getYouTubeVideoId } from "@/lib/utils/getYoutubeVedioId";
 import { getUserInfo } from "@/services/Auth/getMe.service";
 import { IMediaResponse } from "@/services/Media/getMedia.service";
+import { getUserSubscription } from "@/services/Subscription/subscription.service";
 import { addToWatchlist } from "@/services/Watchlist/watchlist.service";
 
 interface MediaDetailsProps {
@@ -32,6 +33,42 @@ const MediaDetails = ({ media }: MediaDetailsProps) => {
   const videoId = getYouTubeVideoId(media.youtubeStreamUrl);
   const router = useRouter();
   const pathname = usePathname();
+
+  const handleWatchNow = async () => {
+    if (media.pricingType === "FREE") {
+      setIsPlaying(true);
+      return;
+    }
+
+    try {
+      const user = await getUserInfo();
+
+      if (!user) {
+        toast.error("Please login to watch premium content");
+        router.push(`/login?redirectPath=${pathname}`);
+        return;
+      }
+
+      const subscription = await getUserSubscription();
+
+      if (
+        subscription &&
+        subscription.status === "ACTIVE" &&
+        subscription.plan !== "FREE"
+      ) {
+        setIsPlaying(true);
+      } else {
+        toast.info("This content requires a premium subscription.", {
+          description:
+            "Please visit our homepage to choose a subscription plan.",
+          duration: 5000,
+        });
+      }
+    } catch (error) {
+      console.error("Watch now error:", error);
+      toast.error("An error occurred. Please try again.");
+    }
+  };
 
   const handleAddToWatchlist = async () => {
     setIsSubmitting(true);
@@ -192,7 +229,7 @@ const MediaDetails = ({ media }: MediaDetailsProps) => {
 
               <div className="flex flex-wrap gap-4 pt-4">
                 <ShimmerButton
-                  onClick={() => setIsPlaying(true)}
+                  onClick={handleWatchNow}
                   background="#b32c05"
                   className="h-14 px-8 rounded-2xl text-white transition-all duration-300 font-black uppercase tracking-widest text-xs cursor-pointer"
                 >
