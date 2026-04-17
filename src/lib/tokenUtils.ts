@@ -1,6 +1,6 @@
 "use server";
 
-import jwt, { JwtPayload } from "jsonwebtoken";
+import { decodeJwt, JWTPayload } from "jose";
 import { setCookie } from "./cookieUtils";
 
 const getTokenSecondRemaining = (token: string): number => {
@@ -9,7 +9,7 @@ const getTokenSecondRemaining = (token: string): number => {
   }
 
   try {
-    const tokenPayload = jwt.decode(token) as JwtPayload;
+    const tokenPayload = decodeJwt(token) as JWTPayload;
     if (tokenPayload && !tokenPayload.exp) {
       return 0;
     }

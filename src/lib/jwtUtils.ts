@@ -1,28 +1,32 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import jwt, { JwtPayload } from "jsonwebtoken";
-
-const verifyToken = (token: string, secret: string) => {
-  try {
-    const decoded = jwt.verify(token, secret) as JwtPayload;
-    return {
-      success: true,
-      data: decoded,
-    };
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error.message,
-      error,
-    };
-  }
-};
-
-const decodedToken = (token: string) => {
-  const decoded = jwt.decode(token) as JwtPayload;
-  return decoded;
-};
+import { jwtVerify, decodeJwt, JWTPayload } from "jose";
 
 export const jwtUtils = {
-  verifyToken,
-  decodedToken,
+  verifyToken: async (token: string, secret: string) => {
+    try {
+      const { payload } = await jwtVerify(
+        token,
+        new TextEncoder().encode(secret),
+      );
+      return {
+        success: true,
+        data: payload as JWTPayload & { role?: string },
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message,
+        error,
+      };
+    }
+  },
+
+  decodedToken: (token: string) => {
+    try {
+      const decoded = decodeJwt(token);
+      return decoded as JWTPayload & { role?: string };
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      return null;
+    }
+  },
 };
