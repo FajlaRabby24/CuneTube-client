@@ -1,60 +1,79 @@
 "use client";
 
+import { PlayIcon, PlusIcon, StarIcon } from "lucide-react";
+import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
-import { StarIcon, PlayIcon, InfoIcon } from "lucide-react";
-import { motion } from "motion/react";
 
 import { Button } from "@/components/ui/button";
+import { MagicCard } from "@/components/ui/magic-card";
+import { getYouTubeVideoId } from "@/lib/utils/getYoutubeVedioId";
 import { IMediasResponse } from "@/services/Media/getMedia.service";
 
 interface MediaCardProps {
   media: IMediasResponse;
+  index: number;
+  itemsLength: number;
 }
 
-const MediaCard = ({ media }: MediaCardProps) => {
+const MediaCard = ({ media, index, itemsLength }: MediaCardProps) => {
   return (
     <motion.div
+      key={media.id}
       initial={{ opacity: 0, scale: 0.95 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
-      className="group relative aspect-[2/3] overflow-hidden rounded-xl bg-slate-900 shadow-lg transition-all duration-500 hover:shadow-2xl"
+      transition={{ delay: (index % itemsLength) * 0.1 }}
+      className="relative aspect-video w-full overflow-hidden rounded-xl group cursor-pointer"
     >
-      <Link href={`/movies/${media.id}`}>
-        <Image
-          src={(media as any).posterUrl || "/placeholder-movie.jpg"}
-          alt={media.title}
-          fill
-          className="object-cover transition-transform duration-700 group-hover:scale-110 group-hover:blur-[2px]"
-        />
-        
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
-        
-        {/* Hover Actions */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-          <Button size="icon" className="size-12 rounded-full bg-primary text-white hover:scale-110 transition-transform">
-            <PlayIcon className="size-6 fill-current" />
-          </Button>
-          <Button variant="outline" size="sm" className="bg-white/10 border-white/20 text-white backdrop-blur-md hover:bg-white/20">
-            <InfoIcon className="mr-2 size-4" /> View Info
-          </Button>
-        </div>
+      <Link href={`/media/${media.id}`}>
+        <MagicCard
+          className="w-full h-full rounded-xl p-0"
+          gradientColor="#3b82f6"
+          gradientOpacity={0.4}
+        >
+          <Image
+            src={`https://img.youtube.com/vi/${getYouTubeVideoId(media?.youtubeStreamUrl)}/hqdefault.jpg`}
+            alt={media.title}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+          />
 
-        {/* Info Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-1 text-[10px] font-black text-yellow-400 uppercase tracking-widest bg-black/40 backdrop-blur-md px-2 py-0.5 rounded">
-              <StarIcon className="size-2.5 fill-current" />
-              {media.averageRating.toFixed(1)}
+          {/* Glass Overlay on Hover */}
+          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+            <div className="space-y-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+              <h3 className="font-bold text-white text-base line-clamp-2 leading-tight">
+                {media.title}
+              </h3>
+
+              <div className="flex items-center gap-3 text-xs font-bold text-white/80">
+                <span className="flex items-center gap-1 font-outfit">
+                  <StarIcon className="size-3 text-yellow-400 fill-yellow-400" />{" "}
+                  {media.averageRating}
+                </span>
+                <span>•</span>
+                <span className="font-outfit">{media.releaseYear}</span>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  className="size-10 rounded-full"
+                >
+                  <PlayIcon className="size-5 fill-current" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="size-10 rounded-full border-white/40 text-white hover:bg-white/10"
+                >
+                  <PlusIcon className="size-5" />
+                </Button>
+              </div>
             </div>
-            <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">{media.releaseYear}</span>
           </div>
-          <h3 className="line-clamp-1 text-sm font-bold text-white group-hover:text-primary transition-colors">
-            {media.title}
-          </h3>
-          <p className="text-[10px] font-bold text-white/40 uppercase tracking-tighter mt-0.5">{media.type}</p>
-        </div>
+        </MagicCard>
       </Link>
     </motion.div>
   );

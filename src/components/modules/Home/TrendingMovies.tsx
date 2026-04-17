@@ -29,7 +29,7 @@ const TrendingMovies = () => {
           {[1, 2, 3, 4, 5].map((i) => (
             <div
               key={i}
-              className="aspect-[2/3] w-[200px] shrink-0 animate-pulse rounded-xl bg-muted"
+              className="aspect-video w-[300px] md:w-[450px] shrink-0 animate-pulse rounded-xl bg-muted"
             />
           ))}
         </div>
