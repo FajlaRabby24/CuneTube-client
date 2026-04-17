@@ -9,14 +9,18 @@ import {
   UserIcon,
   XIcon,
 } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
+import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getYouTubeVideoId } from "@/lib/utils/getYoutubeVedioId";
+import { getUserInfo } from "@/services/Auth/getMe.service";
 import { IMediaResponse } from "@/services/Media/getMedia.service";
+import { addToWatchlist } from "@/services/Watchlist/watchlist.service";
 
 interface MediaDetailsProps {
   media: IMediaResponse;
@@ -24,7 +28,36 @@ interface MediaDetailsProps {
 
 const MediaDetails = ({ media }: MediaDetailsProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const videoId = getYouTubeVideoId(media.youtubeStreamUrl);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const handleAddToWatchlist = async () => {
+    setIsSubmitting(true);
+    try {
+      const user = await getUserInfo();
+
+      if (!user) {
+        toast.error("Please login to add to watchlist");
+        router.push(`/login?redirectPath=${pathname}`);
+        return;
+      }
+
+      const res = await addToWatchlist(media.id);
+
+      if (res.success) {
+        toast.success("Added to watchlist successfully!");
+      } else {
+        toast.error(res.message || "Failed to add to watchlist");
+      }
+    } catch (error) {
+      console.error("Watchlist error:", error);
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-white pb-20">
@@ -156,9 +189,12 @@ const MediaDetails = ({ media }: MediaDetailsProps) => {
                 </Button>
                 <Button
                   variant="outline"
-                  className="h-14 px-8 rounded-2xl border-white/20 bg-white/5 text-white hover:bg-white/10 transition-all font-black uppercase tracking-widest text-xs"
+                  onClick={handleAddToWatchlist}
+                  disabled={isSubmitting}
+                  className="h-14 px-8 rounded-2xl border-white/20 bg-white/5 text-white hover:bg-white/10 transition-all font-black uppercase tracking-widest text-xs disabled:opacity-50"
                 >
-                  <PlusIcon className="mr-2 size-4" /> Add to List
+                  <PlusIcon className="mr-2 size-4" />{" "}
+                  {isSubmitting ? "Adding..." : "Add to Watchlist"}
                 </Button>
               </div>
             </div>
