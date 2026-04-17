@@ -6,17 +6,17 @@ import {
   ExternalLinkIcon,
   PlusIcon,
   StarIcon,
-  UserIcon,
   XIcon,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { getYouTubeVideoId } from "@/lib/utils/getYoutubeVedioId";
 import { getUserInfo } from "@/services/Auth/getMe.service";
 import { IMediaResponse } from "@/services/Media/getMedia.service";
@@ -78,6 +78,8 @@ const MediaDetails = ({ media }: MediaDetailsProps) => {
                 alt={media.title}
                 fill
                 priority
+                loading="eager"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-cover opacity-40 blur-[2px]"
                 onError={(e) => {
                   // Fallback if maxresdefault doesn't exist
@@ -129,7 +131,9 @@ const MediaDetails = ({ media }: MediaDetailsProps) => {
                   "/placeholder-movie.jpg"
                 }
                 alt={media.title}
+                loading="eager"
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-cover"
               />
             </motion.div>
@@ -178,24 +182,30 @@ const MediaDetails = ({ media }: MediaDetailsProps) => {
                 >
                   {media.ageRating}
                 </Badge>
+                <Badge
+                  variant="secondary"
+                  className="bg-primary/20 hover:bg-primary/30 text-primary border-primary/20 px-2 py-0 uppercase text-[10px] font-bold"
+                >
+                  {media.type}
+                </Badge>
               </div>
 
               <div className="flex flex-wrap gap-4 pt-4">
-                <Button
+                <ShimmerButton
                   onClick={() => setIsPlaying(true)}
-                  className="h-14 px-8 rounded-2xl bg-primary text-white hover:bg-white hover:text-primary transition-all duration-300 font-black uppercase tracking-widest text-xs cursor-pointer"
+                  background="#b32c05"
+                  className="h-14 px-8 rounded-2xl text-white transition-all duration-300 font-black uppercase tracking-widest text-xs cursor-pointer"
                 >
                   Watch Now
-                </Button>
-                <Button
-                  variant="outline"
+                </ShimmerButton>
+                <ShimmerButton
                   onClick={handleAddToWatchlist}
                   disabled={isSubmitting}
-                  className="h-14 px-8 rounded-2xl border-white/20 bg-white/5 text-white hover:bg-white/10 transition-all font-black uppercase tracking-widest text-xs disabled:opacity-50"
+                  className="h-14 px-8 rounded-2xl cursor-pointer text-white transition-all font-black uppercase tracking-widest text-xs disabled:opacity-50"
                 >
                   <PlusIcon className="mr-2 size-4" />{" "}
                   {isSubmitting ? "Adding..." : "Add to Watchlist"}
-                </Button>
+                </ShimmerButton>
               </div>
             </div>
           </div>
@@ -213,65 +223,6 @@ const MediaDetails = ({ media }: MediaDetailsProps) => {
             <p className="text-slate-400 text-lg leading-relaxed font-medium">
               {media.synopsis}
             </p>
-          </section>
-
-          {/* Cast */}
-          <section className="space-y-6">
-            <h2 className="text-2xl font-black uppercase font-outfit tracking-tight border-b border-white/5 pb-2">
-              Top Cast
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-              {media.castMembers.map((member) => (
-                <div key={member.id} className="flex items-center gap-4 group">
-                  <div className="relative size-14 shrink-0 rounded-full overflow-hidden bg-slate-800 border-2 border-white/5 group-hover:border-primary transition-colors">
-                    {member.profileUrl ? (
-                      <Image
-                        src={member.profileUrl}
-                        alt={member.actorName}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <UserIcon className="size-full p-3 text-slate-700" />
-                    )}
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-sm text-white line-clamp-1 group-hover:text-primary transition-colors">
-                      {member.actorName}
-                    </h4>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest line-clamp-1">
-                      {member.character}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Crew */}
-          <section className="space-y-4">
-            <h2 className="text-2xl font-black uppercase font-outfit tracking-tight border-b border-white/5 pb-2">
-              Directors
-            </h2>
-            <div className="flex gap-8">
-              {media.directors.map((dir) => (
-                <div key={dir.id} className="flex items-center gap-3">
-                  <div className="relative size-10 rounded-full overflow-hidden bg-slate-800">
-                    {dir.profileUrl && (
-                      <Image
-                        src={dir.profileUrl}
-                        alt={dir.directorName}
-                        fill
-                        className="object-cover"
-                      />
-                    )}
-                  </div>
-                  <span className="font-bold text-white font-outfit">
-                    {dir.directorName}
-                  </span>
-                </div>
-              ))}
-            </div>
           </section>
         </div>
 
