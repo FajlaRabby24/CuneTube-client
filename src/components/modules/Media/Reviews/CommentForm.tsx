@@ -13,6 +13,7 @@ interface CommentFormProps {
   buttonText?: string;
   initialContent?: string;
   autoFocus?: boolean;
+  ratingRightElement?: React.ReactNode;
 }
 
 const CommentForm = ({
@@ -22,9 +23,11 @@ const CommentForm = ({
   buttonText = "Post",
   initialContent = "",
   autoFocus = false,
+  ratingRightElement,
 }: CommentFormProps) => {
   const [content, setContent] = useState(initialContent);
   const [rating, setRating] = useState<number>(0);
+  const [hoverRating, setHoverRating] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,41 +48,52 @@ const CommentForm = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {showRating && (
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Rate It:</span>
-          <div className="flex gap-1">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
-              <button
-                key={star}
-                type="button"
-                onClick={() => setRating(star)}
-                className={cn(
-                  "size-8 rounded-lg flex items-center justify-center transition-all border border-white/5",
-                  rating >= star ? "bg-primary text-white border-primary" : "bg-white/5 text-slate-500 hover:bg-white/10"
-                )}
-              >
-                {star}
-              </button>
-            ))}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1">
+            <div className="flex">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setRating(star)}
+                  onMouseEnter={() => setHoverRating(star)}
+                  onMouseLeave={() => setHoverRating(0)}
+                  className="p-1 cursor-pointer transition-all hover:scale-110"
+                >
+                  <StarIcon
+                    className={cn(
+                      "size-5",
+                      (hoverRating || rating) >= star
+                        ? "fill-yellow-500 text-yellow-500"
+                        : "text-slate-600 hover:text-yellow-500/50"
+                    )}
+                  />
+                </button>
+              ))}
+            </div>
+            {rating > 0 && <span className="text-sm font-bold text-yellow-500 ml-2 w-8">{rating}/10</span>}
           </div>
+          {ratingRightElement && (
+            <div>{ratingRightElement}</div>
+          )}
         </div>
       )}
 
-      <div className="relative">
+      <div className="relative group/input">
         <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder={placeholder}
           autoFocus={autoFocus}
-          className="bg-white/5 border-white/10 focus:ring-primary min-h-[100px] rounded-2xl p-4 text-white placeholder:text-slate-500 transition-all resize-none font-medium"
+          className="bg-transparent border-0 border-b border-white/20 focus-visible:ring-0 focus-visible:border-white rounded-none px-0 py-2 min-h-[40px] text-sm text-white placeholder:text-slate-500 transition-all resize-none shadow-none"
         />
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end mt-2">
         <Button
           type="submit"
           disabled={isSubmitting || !content.trim() || (showRating && rating === 0)}
-          className="bg-primary text-white hover:bg-white hover:text-primary transition-all font-black uppercase tracking-widest text-xs h-12 px-8 rounded-xl disabled:opacity-50"
+          className="bg-primary text-black hover:bg-primary/90 transition-all font-bold text-xs h-9 px-4 rounded-full disabled:opacity-50"
         >
           {isSubmitting ? "Posting..." : buttonText}
         </Button>

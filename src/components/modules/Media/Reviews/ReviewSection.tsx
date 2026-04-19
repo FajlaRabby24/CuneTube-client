@@ -68,27 +68,22 @@ const ReviewSection = ({ mediaId }: ReviewSectionProps) => {
 
   if (isLoading) {
     return (
-      <div className="space-y-8 animate-pulse">
+      <div className="max-w-4xl mx-auto space-y-8 animate-pulse">
         {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="bg-white/5 border border-white/10 rounded-[2rem] p-8 backdrop-blur-md"
-          >
-            <div className="flex flex-col md:flex-row gap-8">
-              <div className="w-full md:w-48 shrink-0 flex flex-col items-center md:items-start space-y-4">
-                <Skeleton className="size-16 rounded-2xl bg-white/5" />
-                <div className="space-y-2 w-full">
-                  <Skeleton className="h-4 w-3/4 bg-white/5 mx-auto md:mx-0" />
-                  <Skeleton className="h-4 w-1/2 bg-white/5 mx-auto md:mx-0" />
-                </div>
+          <div key={i} className="flex gap-4 w-full py-4">
+            <Skeleton className="w-10 h-10 rounded-full bg-white/5 shrink-0" />
+            <div className="flex-1 space-y-3">
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-3 w-24 bg-white/5" />
+                <Skeleton className="h-3 w-16 bg-white/5" />
               </div>
-              <div className="flex-1 space-y-4">
-                <Skeleton className="h-6 w-1/4 bg-white/5" />
-                <Skeleton className="h-20 w-full bg-white/5" />
-                <div className="flex gap-4 border-t border-white/5 pt-4">
-                  <Skeleton className="h-10 w-24 rounded-xl bg-white/5" />
-                  <Skeleton className="h-10 w-24 rounded-xl bg-white/5" />
-                </div>
+              <div className="space-y-2">
+                <Skeleton className="h-3 w-full bg-white/5" />
+                <Skeleton className="h-3 w-[80%] bg-white/5" />
+              </div>
+              <div className="flex gap-4 pt-1">
+                <Skeleton className="h-4 w-12 rounded bg-white/5" />
+                <Skeleton className="h-4 w-12 rounded bg-white/5" />
               </div>
             </div>
           </div>
@@ -101,9 +96,9 @@ const ReviewSection = ({ mediaId }: ReviewSectionProps) => {
   console.log(reviews, "reviews");
 
   return (
-    <section className="space-y-16">
+    <section className="max-w-4xl mx-auto space-y-10">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-6">
         <div className="space-y-2">
           <h2 className="text-4xl font-black uppercase font-outfit tracking-tighter">
             User Reviews
@@ -115,38 +110,39 @@ const ReviewSection = ({ mediaId }: ReviewSectionProps) => {
       </div>
 
       {/* Review Form */}
-      <div className="bg-primary/5 border border-primary/20 rounded-[2.5rem] p-8 md:p-12 space-y-8">
-        <div className="space-y-2 text-center md:text-left">
-          <h3 className="text-2xl font-black uppercase font-outfit tracking-tight">
+      <div className="space-y-3 pt-4 2xl:-mx-2">
+        <div className="space-y-1 px-2">
+          <h3 className="text-lg font-bold text-white">
             Rate this media
           </h3>
-          <p className="text-slate-400 font-medium">
+          <p className="text-[14px] text-slate-400">
             Share your thoughts and help others decide what to watch.
           </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="px-2">
           <CommentForm
             onSubmit={handleReviewSubmit}
             showRating
             placeholder="What did you think of the story, acting, and visuals?"
             buttonText="Submit Review"
+            ratingRightElement={
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="spoiler"
+                  checked={hasSpoiler}
+                  onCheckedChange={(checked) => setHasSpoiler(checked as boolean)}
+                  className="border-white/20 data-[state=checked]:bg-primary h-4 w-4"
+                />
+                <Label
+                  htmlFor="spoiler"
+                  className="text-[11px] font-bold text-slate-400 uppercase tracking-widest cursor-pointer"
+                >
+                  Contains Spoilers
+                </Label>
+              </div>
+            }
           />
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="spoiler"
-              checked={hasSpoiler}
-              onCheckedChange={(checked) => setHasSpoiler(checked as boolean)}
-              className="border-white/20 data-[state=checked]:bg-primary"
-            />
-            <Label
-              htmlFor="spoiler"
-              className="text-sm font-bold text-slate-400 uppercase tracking-widest cursor-pointer"
-            >
-              This review contains spoilers
-            </Label>
-          </div>
         </div>
       </div>
 

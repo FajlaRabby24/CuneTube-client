@@ -55,16 +55,18 @@ export const createReply = async (commentId: string, content: string) => {
   const accessToken = cookieStore.get("accessToken")?.value;
   const sessionToken = cookieStore.get("better-auth.session_token")?.value;
 
-  if (!accessToken) return { success: false, message: "Unauthorized" };
+  if (!accessToken) return null;
 
-  return await httpClient.post<IComment>(
-    `/comments/${commentId}/reply`,
-    { content },
-    {
-      headers: {
-        Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,
+  return (
+    (await httpClient.post<IComment>(
+      `/comments/${commentId}/reply`,
+      { content },
+      {
+        headers: {
+          Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,
+        },
       },
-    },
+    )) ?? null
   );
 };
 
@@ -73,9 +75,9 @@ export const likeComment = async (commentId: string) => {
   const accessToken = cookieStore.get("accessToken")?.value;
   const sessionToken = cookieStore.get("better-auth.session_token")?.value;
 
-  if (!accessToken) return { success: false, message: "Unauthorized" };
+  if (!accessToken) return null;
 
-  return await httpClient.post<{ liked: boolean; likesCount: number }>(
+  const res = await httpClient.post<{ liked: boolean; likesCount: number }>(
     `/comments/${commentId}/like`,
     {},
     {
@@ -84,4 +86,10 @@ export const likeComment = async (commentId: string) => {
       },
     },
   );
+
+  if (!res.success) {
+    return null;
+  }
+
+  return res ?? null;
 };

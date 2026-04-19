@@ -3,10 +3,13 @@ export interface IReview {
   userId: string;
   mediaId: string;
   rating: number;
-  title?: string;
+  title: string | null;
   content: string;
   hasSpoiler: boolean;
   status: "PENDING" | "APPROVED" | "REJECTED";
+  publishedAt: string | null;
+  rejectedReason: string | null;
+  moderatedBy: string | null;
   likesCount: number;
   commentsCount: number;
   createdAt: string;
@@ -14,28 +17,30 @@ export interface IReview {
   user: {
     id: string;
     name: string;
-    image: string;
+    email: string;
+    image: string | null;
+  };
+  media: {
+    id: string;
+    title: string;
+    slug: string;
+  };
+  comments: IComment[];
+  _count: {
+    likes: number;
+    comments: number;
   };
 }
 
 export interface IComment {
   id: string;
-  userId: string;
-  reviewId: string;
   content: string;
   parentId?: string | null;
-  isDeleted: boolean;
   likesCount: number;
   createdAt: string;
-  updatedAt: string;
   user: {
     id: string;
     name: string;
     image: string;
-  };
-  replies?: IComment[];
-  _count?: {
-    likes: number;
-    replies: number;
   };
 }

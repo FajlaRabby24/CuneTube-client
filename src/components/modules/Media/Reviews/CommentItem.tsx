@@ -1,24 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import { HeartIcon, MessageSquareIcon, FlagIcon, CornerDownRightIcon } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { IComment } from "@/types/review.types";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import CommentForm from "./CommentForm";
-import { createReply, likeComment } from "@/services/Comment/comment.service";
-import { toast } from "sonner";
-import ReportDialog from "./ReportDialog";
 import { getUserInfo } from "@/services/Auth/getMe.service";
+import { createReply, likeComment } from "@/services/Comment/comment.service";
+import { IComment } from "@/types/review.types";
+import { formatDistanceToNow } from "date-fns";
+import { HeartIcon } from "lucide-react";
+import Image from "next/image";
+import { useState } from "react";
+import { toast } from "sonner";
+import CommentForm from "./CommentForm";
+import ReportDialog from "./ReportDialog";
 
 interface CommentItemProps {
   comment: IComment;
   isReply?: boolean;
 }
 
-const CommentItem = ({ comment: initialComment, isReply = false }: CommentItemProps) => {
+const CommentItem = ({
+  comment: initialComment,
+  isReply = false,
+}: CommentItemProps) => {
   const [comment, setComment] = useState(initialComment);
   const [isReplying, setIsReplying] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
@@ -33,7 +35,7 @@ const CommentItem = ({ comment: initialComment, isReply = false }: CommentItemPr
       }
 
       const res = await likeComment(comment.id);
-      if (res.success) {
+      if (res?.success) {
         setComment((prev) => ({
           ...prev,
           likesCount: res.data.likesCount,
@@ -53,11 +55,11 @@ const CommentItem = ({ comment: initialComment, isReply = false }: CommentItemPr
       }
 
       const res = await createReply(comment.id, data.content);
-      if (res.success) {
+      if (res?.success) {
         toast.success("Reply posted!");
         setComment((prev) => ({
           ...prev,
-          replies: [res.data, ...(prev.replies || [])],
+          replies: [res?.data],
         }));
         setIsReplying(false);
         setShowReplies(true);
@@ -68,52 +70,68 @@ const CommentItem = ({ comment: initialComment, isReply = false }: CommentItemPr
   };
 
   return (
-    <div className={cn("group transition-all", isReply ? "ml-12 mt-4" : "py-6 border-b border-white/5")}>
-      <div className="flex gap-4">
-        <div className="relative size-10 shrink-0 rounded-full overflow-hidden bg-slate-800 border border-white/5">
+    <div
+      className={cn("group transition-all", isReply ? "ml-12 mt-2" : "py-2")}
+    >
+      <div className="flex gap-3">
+        <div className="relative size-6 md:size-8 shrink-0 rounded-full overflow-hidden bg-slate-800 border border-white/5">
           {comment.user.image ? (
-            <Image src={comment.user.image} alt={comment.user.name} fill className="object-cover" />
+            <Image
+              src={comment.user.image}
+              alt={comment.user.name}
+              fill
+              className="object-cover"
+            />
           ) : (
-            <div className="size-full flex items-center justify-center bg-slate-800 text-slate-500 font-bold">
+            <div className="size-full flex items-center justify-center bg-slate-800 text-slate-500 text-xs font-bold">
               {comment.user.name[0]}
             </div>
           )}
         </div>
 
-        <div className="flex-1 space-y-2">
+        <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-white text-sm">{comment.user.name}</span>
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-              {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+            <span className="font-bold text-white text-[13px]">
+              @{comment.user.name.replace(/\s+/g, "").toLowerCase()}
+            </span>
+            <span className="text-[12px] text-slate-400">
+              {formatDistanceToNow(new Date(comment.createdAt), {
+                addSuffix: true,
+              })}
             </span>
           </div>
 
-          <p className="text-slate-300 text-sm leading-relaxed">{comment.content}</p>
+          <p className="text-slate-200 text-[14px] mt-0.5 leading-relaxed break-words">
+            {comment.content}
+          </p>
 
-          <div className="flex items-center gap-6 pt-1">
+          <div className="flex items-center gap-4 pt-1.5">
             <button
               onClick={handleLike}
-              className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-primary transition-colors"
+              className="flex items-center gap-1.5 text-[12px] font-medium text-slate-400 hover:text-white transition-colors"
             >
-              <HeartIcon className={cn("size-4", comment.likesCount > 0 && "fill-primary text-primary")} />
-              {comment.likesCount}
+              <HeartIcon
+                className={cn(
+                  "size-3.5",
+                  comment.likesCount > 0 && "fill-white text-white",
+                )}
+              />
+              {comment.likesCount > 0 && comment.likesCount}
             </button>
 
             {!isReply && (
               <button
                 onClick={() => setIsReplying(!isReplying)}
-                className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-white transition-colors"
+                className="text-[12px] font-medium text-slate-400 hover:text-white transition-colors"
               >
-                <MessageSquareIcon className="size-4" />
                 Reply
               </button>
             )}
 
             <button
               onClick={() => setIsReportOpen(true)}
-              className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+              className="text-[12px] font-medium text-slate-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
             >
-              <FlagIcon className="size-4" />
               Report
             </button>
           </div>
@@ -126,27 +144,6 @@ const CommentItem = ({ comment: initialComment, isReply = false }: CommentItemPr
                 buttonText="Reply"
                 autoFocus
               />
-            </div>
-          )}
-
-          {/* Replies Section */}
-          {!isReply && comment.replies && comment.replies.length > 0 && (
-            <div className="pt-2">
-              <button
-                onClick={() => setShowReplies(!showReplies)}
-                className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-primary hover:text-white transition-colors"
-              >
-                <CornerDownRightIcon className="size-4" />
-                {showReplies ? "Hide Replies" : `Show ${comment.replies.length} Replies`}
-              </button>
-
-              {showReplies && (
-                <div className="space-y-2">
-                  {comment.replies.map((reply) => (
-                    <CommentItem key={reply.id} comment={reply} isReply />
-                  ))}
-                </div>
-              )}
             </div>
           )}
         </div>
