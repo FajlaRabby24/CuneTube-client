@@ -24,7 +24,7 @@ import { createMedia } from "@/services/Media/mediaActions.service";
 import { createMediaZodSchema, GenreEnum } from "@/zod/media.validation";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { PlusIcon, TrashIcon, XIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -50,12 +50,6 @@ export const CreateMediaModal = ({
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
 
-  const [castMembers, setCastMembers] = useState<
-    { actorName: string; character: string; profileUrl: string }[]
-  >([]);
-  const [directors, setDirectors] = useState<
-    { directorName: string; profileUrl: string }[]
-  >([]);
   const [platforms, setPlatforms] = useState<
     { platform: "YOUTUBE"; streamUrl: string }[]
   >([]);
@@ -70,10 +64,10 @@ export const CreateMediaModal = ({
     defaultValues: {
       title: "",
       synopsis: "",
-      type: "MOVIE" as "MOVIE" | "SERIES",
+      type: "" as any,
       releaseYear: new Date().getFullYear(),
-      ageRating: "PG_13",
-      duration: 120,
+      ageRating: "" as any,
+      duration: undefined as any,
       posterUrl: "",
       backdropUrl: "",
       trailerUrl: "",
@@ -81,7 +75,7 @@ export const CreateMediaModal = ({
       imdbId: "",
       language: "English",
       country: "USA",
-      pricingType: "PREMIUM" as "FREE" | "PREMIUM",
+      pricingType: "" as any,
       status: "PUBLISHED" as "DRAFT" | "PUBLISHED" | "UNPUBLISHED",
       isFeatured: false,
       isTrending: false,
@@ -107,8 +101,6 @@ export const CreateMediaModal = ({
           imdbId: value.imdbId || undefined,
           genres,
           tags: tags.length > 0 ? tags : undefined,
-          castMembers: castMembers.length > 0 ? castMembers : undefined,
-          directors: directors.length > 0 ? directors : undefined,
           platforms: platforms.length > 0 ? platforms : undefined,
         };
 
@@ -119,8 +111,6 @@ export const CreateMediaModal = ({
           form.reset();
           setGenres([]);
           setTags([]);
-          setCastMembers([]);
-          setDirectors([]);
           setPlatforms([]);
           queryClient.invalidateQueries({ queryKey: ["admin-media"] });
         } else {
@@ -188,12 +178,6 @@ export const CreateMediaModal = ({
                   className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none shadow-none"
                 >
                   Metadata & Tags
-                </TabsTrigger>
-                <TabsTrigger
-                  value="crew"
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none shadow-none"
-                >
-                  Cast & Crew
                 </TabsTrigger>
               </TabsList>
 
@@ -267,7 +251,7 @@ export const CreateMediaModal = ({
                       {(field) => (
                         <div className="space-y-2">
                           <FieldLabel htmlFor={field.name}>
-                            Media Type
+                            Media Type <span className="text-red-500">*</span>
                           </FieldLabel>
                           <Select
                             value={field.state.value}
@@ -281,8 +265,26 @@ export const CreateMediaModal = ({
                             <SelectContent>
                               <SelectItem value="MOVIE">Movie</SelectItem>
                               <SelectItem value="SERIES">Series</SelectItem>
+                              <SelectItem value="TRAILER">Trailer</SelectItem>
+                              <SelectItem value="EPISODE">Episode</SelectItem>
+                              <SelectItem value="SHORT">Short</SelectItem>
+                              <SelectItem value="FUNNY">Funny</SelectItem>
+                              <SelectItem value="SPORT">Sport</SelectItem>
+                              <SelectItem value="MOTIVATIONAL">
+                                Motivational
+                              </SelectItem>
+                              <SelectItem value="EDUCATIONAL">
+                                Educational
+                              </SelectItem>
+                              <SelectItem value="OTHER">Other</SelectItem>
                             </SelectContent>
                           </Select>
+                          {field.state.meta.isTouched &&
+                            field.state.meta.errors.length > 0 && (
+                              <p className="text-xs text-red-500">
+                                {getErrorMessage(field.state.meta.errors[0])}
+                              </p>
+                            )}
                         </div>
                       )}
                     </form.Field>
@@ -315,7 +317,7 @@ export const CreateMediaModal = ({
                       {(field) => (
                         <div className="space-y-2">
                           <FieldLabel htmlFor={field.name}>
-                            Age Rating
+                            Age Rating <span className="text-red-500">*</span>
                           </FieldLabel>
                           <Select
                             value={field.state.value}
@@ -335,6 +337,12 @@ export const CreateMediaModal = ({
                               <SelectItem value="TV_MA">TV-MA</SelectItem>
                             </SelectContent>
                           </Select>
+                          {field.state.meta.isTouched &&
+                            field.state.meta.errors.length > 0 && (
+                              <p className="text-xs text-red-500">
+                                {getErrorMessage(field.state.meta.errors[0])}
+                              </p>
+                            )}
                         </div>
                       )}
                     </form.Field>
@@ -345,7 +353,7 @@ export const CreateMediaModal = ({
                       {(field) => (
                         <div className="space-y-2">
                           <FieldLabel htmlFor={field.name}>
-                            Duration (mins)
+                            Duration (mins) <span className="text-red-500">*</span>
                           </FieldLabel>
                           <Input
                             id={field.name}
@@ -356,7 +364,14 @@ export const CreateMediaModal = ({
                             onChange={(e) =>
                               field.handleChange(Number(e.target.value))
                             }
+                            placeholder="e.g. 120"
                           />
+                          {field.state.meta.isTouched &&
+                            field.state.meta.errors.length > 0 && (
+                              <p className="text-xs text-red-500">
+                                {getErrorMessage(field.state.meta.errors[0])}
+                              </p>
+                            )}
                         </div>
                       )}
                     </form.Field>
@@ -367,7 +382,7 @@ export const CreateMediaModal = ({
                       {(field) => (
                         <div className="space-y-2">
                           <FieldLabel htmlFor={field.name}>
-                            Pricing Type
+                            Pricing Type <span className="text-red-500">*</span>
                           </FieldLabel>
                           <Select
                             value={field.state.value}
@@ -383,6 +398,12 @@ export const CreateMediaModal = ({
                               <SelectItem value="PREMIUM">Premium</SelectItem>
                             </SelectContent>
                           </Select>
+                          {field.state.meta.isTouched &&
+                            field.state.meta.errors.length > 0 && (
+                              <p className="text-xs text-red-500">
+                                {getErrorMessage(field.state.meta.errors[0])}
+                              </p>
+                            )}
                         </div>
                       )}
                     </form.Field>
@@ -422,7 +443,7 @@ export const CreateMediaModal = ({
               {/* MEDIA URLs TAB */}
               <TabsContent
                 value="media"
-                className="mt-0 outline-none space-y-4"
+                className="mt-0 outline-none space-y-4 pb-3"
               >
                 <FieldGroup className="grid gap-4 sm:grid-cols-2">
                   <Field>
@@ -430,7 +451,8 @@ export const CreateMediaModal = ({
                       {(field) => (
                         <div className="space-y-2">
                           <FieldLabel htmlFor={field.name}>
-                            YouTube Stream URL
+                            YouTube Stream URL{" "}
+                            <span className="text-red-500">*</span>
                           </FieldLabel>
                           <Input
                             id={field.name}
@@ -441,13 +463,19 @@ export const CreateMediaModal = ({
                             onChange={(e) => field.handleChange(e.target.value)}
                             placeholder="https://youtube.com/watch?v=..."
                           />
+                          {field.state.meta.isTouched &&
+                            field.state.meta.errors.length > 0 && (
+                              <p className="text-xs text-red-500">
+                                {getErrorMessage(field.state.meta.errors[0])}
+                              </p>
+                            )}
                         </div>
                       )}
                     </form.Field>
                   </Field>
                 </FieldGroup>
 
-                <div className="border rounded-lg p-4 space-y-4 shadow-sm">
+                {/* <div className="border rounded-lg p-4 space-y-4 shadow-sm">
                   <h4 className="font-semibold text-sm">Streaming Platforms</h4>
                   {platforms.map((platform, idx) => (
                     <div key={idx} className="flex items-center gap-2">
@@ -500,7 +528,7 @@ export const CreateMediaModal = ({
                   >
                     <PlusIcon className="mr-2 size-4" /> Add Platform
                   </Button>
-                </div>
+                </div> */}
               </TabsContent>
 
               {/* METADATA TAB */}
@@ -651,140 +679,6 @@ export const CreateMediaModal = ({
                       </Badge>
                     ))}
                   </div>
-                </div>
-              </TabsContent>
-
-              {/* CAST & CREW TAB */}
-              <TabsContent value="crew" className="mt-0 outline-none space-y-6">
-                <div className="rounded-lg p-1 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-semibold text-sm">Directors</h4>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setDirectors([
-                          ...directors,
-                          { directorName: "", profileUrl: "" },
-                        ])
-                      }
-                    >
-                      <PlusIcon className="mr-2 size-4" /> Add Director
-                    </Button>
-                  </div>
-                  {directors.map((director, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-2 border p-2 rounded-md shadow-sm bg-muted/20"
-                    >
-                      <div className="grid grid-cols-2 gap-2 flex-1">
-                        <Input
-                          placeholder="Director Name"
-                          value={director.directorName}
-                          onChange={(e) => {
-                            const newArr = [...directors];
-                            newArr[idx].directorName = e.target.value;
-                            setDirectors(newArr);
-                          }}
-                        />
-                        <Input
-                          placeholder="Profile URL"
-                          value={director.profileUrl}
-                          onChange={(e) => {
-                            const newArr = [...directors];
-                            newArr[idx].profileUrl = e.target.value;
-                            setDirectors(newArr);
-                          }}
-                        />
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        type="button"
-                        onClick={() =>
-                          setDirectors(directors.filter((_, i) => i !== idx))
-                        }
-                      >
-                        <TrashIcon className="size-4 text-destructive" />
-                      </Button>
-                    </div>
-                  ))}
-                  {directors.length === 0 && (
-                    <p className="text-xs text-muted-foreground">
-                      No directors added.
-                    </p>
-                  )}
-                </div>
-
-                <div className="rounded-lg p-1 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-semibold text-sm">Cast Members</h4>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setCastMembers([
-                          ...castMembers,
-                          { actorName: "", character: "", profileUrl: "" },
-                        ])
-                      }
-                    >
-                      <PlusIcon className="mr-2 size-4" /> Add Cast
-                    </Button>
-                  </div>
-                  {castMembers.map((member, idx) => (
-                    <div
-                      key={idx}
-                      className="grid sm:grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center border p-2 rounded-md shadow-sm bg-muted/20"
-                    >
-                      <Input
-                        placeholder="Actor Name"
-                        value={member.actorName}
-                        onChange={(e) => {
-                          const newArr = [...castMembers];
-                          newArr[idx].actorName = e.target.value;
-                          setCastMembers(newArr);
-                        }}
-                      />
-                      <Input
-                        placeholder="Character"
-                        value={member.character}
-                        onChange={(e) => {
-                          const newArr = [...castMembers];
-                          newArr[idx].character = e.target.value;
-                          setCastMembers(newArr);
-                        }}
-                      />
-                      <Input
-                        placeholder="Profile URL"
-                        value={member.profileUrl}
-                        onChange={(e) => {
-                          const newArr = [...castMembers];
-                          newArr[idx].profileUrl = e.target.value;
-                          setCastMembers(newArr);
-                        }}
-                      />
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        type="button"
-                        onClick={() =>
-                          setCastMembers(
-                            castMembers.filter((_, i) => i !== idx),
-                          )
-                        }
-                      >
-                        <TrashIcon className="size-4 text-destructive" />
-                      </Button>
-                    </div>
-                  ))}
-                  {castMembers.length === 0 && (
-                    <p className="text-xs text-muted-foreground">
-                      No cast members added.
-                    </p>
-                  )}
                 </div>
               </TabsContent>
             </Tabs>

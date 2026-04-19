@@ -48,7 +48,7 @@ export async function getUserSubscriptions(queryString: string = ""): Promise<IG
       return null;
     }
 
-    const url = `/subscription${queryString ? `?${queryString}` : ""}`;
+    const url = `/subscriptions${queryString ? `?${queryString}` : ""}`;
     const res = await httpClient.get<IGetSubscriptionResponse>(url, {
       headers: {
         Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,
@@ -71,7 +71,7 @@ export async function cancelUserSubscription() {
       return { success: false, message: "Unauthorized" };
     }
 
-    const res = await httpClient.post("/subscription/cancel", {}, {
+    const res = await httpClient.post("/subscriptions/cancel", {}, {
       headers: {
         Authorization: accessToken,
       },

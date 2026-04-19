@@ -1,6 +1,17 @@
 import { z } from "zod";
 
-export const MediaTypeEnum = z.enum(["MOVIE", "SERIES"]);
+export const MediaTypeEnum = z.enum([
+  "MOVIE",
+  "SERIES",
+  "TRAILER",
+  "EPISODE",
+  "SHORT",
+  "FUNNY",
+  "SPORT",
+  "MOTIVATIONAL",
+  "EDUCATIONAL",
+  "OTHER",
+]);
 export const AgeRatingEnum = z.enum([
   "G",
   "PG",
@@ -46,15 +57,18 @@ export const createMediaZodSchema = z.object({
     .int()
     .min(1800)
     .max(new Date().getFullYear() + 5),
-  ageRating: AgeRatingEnum.optional(),
-  duration: z.coerce.number().int().optional(),
+  ageRating: AgeRatingEnum,
+  duration: z.coerce
+    .number()
+    .int()
+    .min(1, "Duration must be at least 1 minute"),
   totalSeasons: z.coerce.number().int().optional(),
   totalEpisodes: z.coerce.number().int().optional(),
-  youtubeStreamUrl: z.string().url().optional().or(z.literal("")),
+  youtubeStreamUrl: z.string().url("Must be a valid YouTube URL"),
   imdbId: z.string().optional(),
   language: z.string().optional(),
   country: z.string().optional(),
-  pricingType: PricingTypeEnum.optional(),
+  pricingType: PricingTypeEnum,
   status: ContentStatusEnum.optional(),
   isFeatured: z.boolean().optional(),
   isEditorsPick: z.boolean().optional(),

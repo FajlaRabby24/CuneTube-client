@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserRole } from "@/lib/authUtilts";
 import { getMyProfile } from "@/services/Auth/getMyProfile.service";
@@ -9,15 +8,20 @@ import { logoutSession } from "@/services/Auth/logoutSession.service";
 import { ISessionDeletePayload } from "@/types/auth.types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  CalendarIcon,
-  Loader2Icon,
-  MailIcon,
-  PhoneIcon,
-  ShieldAlert,
-  ShieldIcon,
-  Trash2Icon,
-  UserIcon,
+  Activity,
+  Bookmark,
+  ChevronRight,
+  CreditCard,
+  Loader2,
+  Mail,
+  MessageSquare,
+  Phone,
+  Shield,
+  Star,
+  Trash2,
+  User,
 } from "lucide-react";
+import { motion } from "motion/react";
 import Image from "next/image";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
@@ -47,11 +51,10 @@ const MyProfile = ({ sessionToken }: { sessionToken: string | undefined }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-svh bg-muted p-6 md:p-10">
-        <div className="mx-auto max-w-4xl">
-          <div className="flex h-64 items-center justify-center">
-            <div className="size-10 animate-spin rounded-full border-4 border-muted border-t-primary" />
-          </div>
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-red-600/10">
+          <div className="absolute inset-0 animate-ping rounded-full bg-red-600/20" />
+          <User className="h-8 w-8 animate-pulse text-red-600" />
         </div>
       </div>
     );
@@ -59,33 +62,66 @@ const MyProfile = ({ sessionToken }: { sessionToken: string | undefined }) => {
 
   if (!profile) {
     return (
-      <div className="min-h-svh bg-muted p-6 md:p-10">
-        <div className="mx-auto max-w-4xl">
-          <div className="flex h-64 items-center justify-center">
-            <ShieldAlert className="h-10 w-10 text-destructive" />
-            <p className="text-muted-foreground">Unable to load profile</p>
+      <div className="flex min-h-[40vh] items-center justify-center p-6">
+        <div className="text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-600/10">
+            <Shield className="h-8 w-8 text-red-600" />
           </div>
+          <p className="text-xl font-bold text-white uppercase tracking-tighter italic">
+            Identity Sync Failed
+          </p>
+          <p className="text-sm text-neutral-500">
+            Unable to establish connection with profile service.
+          </p>
         </div>
       </div>
     );
   }
 
   const stats = [
-    { label: "Watchlists", value: profile.watchlists?.length || 0 },
-    { label: "Reviews", value: profile.reviews?.length || 0 },
-    { label: "Comments", value: profile.comments?.length || 0 },
-    { label: "Payments", value: profile.payments?.length || 0 },
+    {
+      label: "Watchlist",
+      value: profile.watchlists?.length || 0,
+      icon: Bookmark,
+    },
+    { label: "Reviews", value: profile.reviews?.length || 0, icon: Star },
+    {
+      label: "Comments",
+      value: profile.comments?.length || 0,
+      icon: MessageSquare,
+    },
+    {
+      label: "Payments",
+      value: profile.payments?.length || 0,
+      icon: CreditCard,
+    },
   ];
 
   return (
-    <div className="min-h-svh bg-muted p-3 md:p-10">
-      <div className="mx-auto max-w-4xl space-y-6">
-        {/* Profile Header Card */}
-        <Card className="overflow-hidden">
-          <div className="relative h-32 bg-linear-to-r from-blue-500 to-purple-500" />
-          <CardContent className="pb-6">
-            <div className="relative -mt-16 flex flex-col items-center gap-4 sm:flex-row sm:items-end sm:justify-start sm:gap-6 sm:pl-4">
-              <div className="relative size-28 overflow-hidden rounded-full border-4 border-background ring-4 ring-border">
+    <div className="min-h-screen space-y-8 p-4 lg:p-10">
+      {/* Cinematic Profile Hero */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden rounded-3xl border border-white/5 bg-black/40 backdrop-blur-2xl"
+      >
+        <div className="relative h-48 bg-gradient-to-br from-black via-neutral-900 to-red-950/30 sm:h-64">
+          {/* Abstract Decoration */}
+          <div
+            className="absolute inset-0 opacity-20"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)",
+              backgroundSize: "24px 24px",
+            }}
+          />
+          <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-red-600/10 blur-3xl" />
+        </div>
+
+        <div className="relative px-6 pb-8">
+          <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-end">
+            <div className="relative -mt-16 sm:-mt-20">
+              <div className="relative h-32 w-32 overflow-hidden rounded-3xl border-4 border-black/80 ring-1 ring-white/10 sm:h-40 sm:w-40">
                 {profile.image ? (
                   <Image
                     src={profile.image}
@@ -94,230 +130,232 @@ const MyProfile = ({ sessionToken }: { sessionToken: string | undefined }) => {
                     className="object-cover"
                   />
                 ) : (
-                  <div className="flex size-full items-center justify-center bg-muted text-3xl font-bold text-muted-foreground">
+                  <div className="flex h-full w-full items-center justify-center bg-neutral-900 text-4xl font-black italic text-red-600">
                     {profile.name.charAt(0).toUpperCase()}
                   </div>
                 )}
               </div>
-              <div className="flex-1 text-center sm:text-left">
-                <h2 className="text-2xl font-bold">{profile.name}</h2>
-                <p className="text-muted-foreground">{profile.email}</p>
-                {profile?.bio && (
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {profile.bio}
-                  </p>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                {profile.isActive ? (
-                  <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-500">
-                    Active
-                  </span>
-                ) : (
-                  <span className="rounded-full bg-red-500/10 px-3 py-1 text-xs font-medium text-red-500">
-                    Inactive
-                  </span>
-                )}
-                {(profile.role === UserRole.SUPER_ADMIN ||
-                  profile.role === UserRole.ADMIN) && (
-                  <span className="rounded-full bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-500">
-                    {profile?.role === UserRole.SUPER_ADMIN
-                      ? "Super Admin"
-                      : "Admin"}
-                  </span>
-                )}
-              </div>
+              {profile.isActive && (
+                <div className="absolute bottom-2 right-2 h-5 w-5 rounded-full border-4 border-black bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.5)]" />
+              )}
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Stats Row */}
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {stats.map((stat) => (
-            <Card key={stat.label} className="p-4">
-              <div className="text-center">
-                <p className="text-2xl font-bold">{stat.value}</p>
-                <p className="text-xs text-muted-foreground">{stat.label}</p>
+            <div className="flex-1 text-center sm:text-left sm:pb-2">
+              <div className="flex flex-wrap items-center justify-center gap-3 sm:justify-start">
+                <h1 className="text-3xl font-black italic tracking-tighter text-white uppercase sm:text-4xl">
+                  {profile.name}
+                </h1>
+                <div className="flex gap-2">
+                  {profile.isActive && (
+                    <span className="rounded-full bg-green-600/10 px-3 py-1 text-[10px] font-black tracking-widest text-green-500 uppercase ring-1 ring-green-600/20">
+                      Member
+                    </span>
+                  )}
+                  {(profile.role === UserRole.SUPER_ADMIN ||
+                    profile.role === UserRole.ADMIN) && (
+                    <span className="rounded-full bg-red-600/10 px-3 py-1 text-[10px] font-black tracking-widest text-red-600 uppercase ring-1 ring-red-600/20">
+                      {profile.role === UserRole.SUPER_ADMIN
+                        ? "System Admin"
+                        : "Admin"}
+                    </span>
+                  )}
+                </div>
               </div>
-            </Card>
-          ))}
+              <p className="mt-1 flex items-center justify-center gap-2 text-neutral-500 sm:justify-start">
+                <Mail className="h-3 w-3" /> {profile.email}
+              </p>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Stats Quick Grid */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        {stats.map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 + i * 0.1 }}
+            className="flex flex-col items-center justify-center rounded-2xl border border-white/5 bg-black/40 p-6 backdrop-blur-xl transition-all hover:border-white/10"
+          >
+            <stat.icon className="mb-2 h-5 w-5 text-neutral-600" />
+            <h3 className="text-2xl font-black tracking-tighter text-white italic">
+              {stat.value}
+            </h3>
+            <p className="text-[10px] font-black tracking-widest text-neutral-600 uppercase">
+              {stat.label}
+            </p>
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Profile Info Side */}
+        <div className="space-y-6 lg:col-span-1">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="rounded-3xl border border-white/5 bg-black/40 p-6 backdrop-blur-xl"
+          >
+            <h3 className="mb-6 flex items-center gap-2 text-sm font-black tracking-widest text-neutral-400 uppercase">
+              <Activity className="h-4 w-4" /> Personal Trace
+            </h3>
+            <div className="space-y-6">
+              {[
+                { label: "Account ID", val: profile.name, icon: User },
+                { label: "Secure Email", val: profile.email, icon: Mail },
+                {
+                  label: "Contact Phone",
+                  val: profile.phoneNumber || "Not Configured",
+                  icon: Phone,
+                },
+                { label: "Access Level", val: profile.role, icon: Shield },
+              ].map((item) => (
+                <div key={item.label} className="flex items-center gap-4">
+                  <div className="rounded-xl bg-white/5 p-3">
+                    <item.icon className="h-4 w-4 text-neutral-500" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black tracking-widest text-neutral-700 uppercase">
+                      {item.label}
+                    </p>
+                    <p className="text-sm font-bold text-neutral-300">
+                      {item.val}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+            className="rounded-3xl border border-white/5 bg-black/40 p-6 backdrop-blur-xl"
+          >
+            <h3 className="mb-6 flex items-center gap-2 text-sm font-black tracking-widest text-neutral-400 uppercase">
+              <Shield className="h-4 w-4" /> Subscription State
+            </h3>
+            <div className="flex items-center justify-between rounded-2xl bg-gradient-to-br from-red-600/10 to-red-900/10 border border-red-600/10 p-4">
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-red-600/20 p-2">
+                  <CreditCard className="h-5 w-5 text-red-600" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-neutral-400">
+                    Current Plan
+                  </p>
+                  <p className="text-sm font-black text-white italic">
+                    {profile.subscription
+                      ? "Premiere Member"
+                      : "Standard Entry"}
+                  </p>
+                </div>
+              </div>
+              <div className="h-2 w-2 rounded-full bg-red-600 animate-pulse" />
+            </div>
+          </motion.div>
         </div>
 
-        {/* Profile Info */}
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Profile Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-3">
-                <UserIcon className="size-4 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Name</p>
-                  <p className="text-sm font-medium">{profile.name}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <MailIcon className="size-4 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Email</p>
-                  <p className="text-sm font-medium">{profile.email}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <PhoneIcon className="size-4 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Phone</p>
-                  <p className="text-sm font-medium">
-                    {profile.phoneNumber || "Not set"}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Account Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-3">
-                <ShieldIcon className="size-4 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Accounts</p>
-                  <p className="text-sm font-medium">
-                    {profile.accounts?.length || 0} connected
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <CalendarIcon className="size-4 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Sessions</p>
-                  <p className="text-sm font-medium">
-                    {profile.sessions?.length || 0} active
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <CalendarIcon className="size-4 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Subscription</p>
-                  <p className="text-sm font-medium">
-                    {profile.subscription ? "Active" : "None"}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Tabs */}
-        <Card>
-          <Tabs defaultValue="watchlist">
-            <TabsList className="w-full justify-start border-b bg-transparent px-6 py-4">
-              <TabsTrigger
-                value="watchlist"
-                className="data-[state=active]:bg-muted cursor-pointer py-3"
-              >
-                Watchlist
-              </TabsTrigger>
-              <TabsTrigger
-                value="reviews"
-                className="data-[state=active]:bg-muted cursor-pointer py-3 "
-              >
-                Reviews
-              </TabsTrigger>
-              <TabsTrigger
-                value="comments"
-                className="data-[state=active]:bg-muted cursor-pointer py-3"
-              >
-                Comments
-              </TabsTrigger>
-              <TabsTrigger
-                value="sessions"
-                className="data-[state=active]:bg-muted cursor-pointer py-3"
-              >
-                Sessions
-              </TabsTrigger>
+        {/* Navigation Tabs Side */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="lg:col-span-2 rounded-3xl border border-white/5 bg-black/40 backdrop-blur-xl overflow-hidden"
+        >
+          <Tabs defaultValue="sessions">
+            <TabsList className="flex h-16 w-full justify-start gap-8 border-b border-white/5 bg-black/20 px-8">
+              {["Watchlist", "Reviews", "Comments", "Sessions"].map((tab) => (
+                <TabsTrigger
+                  key={tab}
+                  value={tab.toLowerCase()}
+                  className="data-[state=active]:after:w-full relative h-full bg-transparent p-0 text-xs font-black tracking-widest text-neutral-600 uppercase transition-all hover:text-neutral-300 data-[state=active]:text-white data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-0 data-[state=active]:after:h-0.5 data-[state=active]:after:bg-red-600 data-[state=active]:after:content-['']"
+                >
+                  {tab}
+                </TabsTrigger>
+              ))}
             </TabsList>
-            <CardContent className="p-6">
+
+            <div className="p-8">
               <TabsContent value="watchlist">
-                {profile.watchlists?.length === 0 ? (
-                  <div className="py-8 text-center text-muted-foreground">
-                    No watchlists yet
-                  </div>
-                ) : (
-                  // TODO: after added watchlist then redefined
-                  <div className="text-sm">
-                    {JSON.stringify(profile.watchlists, null, 2)}
-                  </div>
-                )}
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Bookmark className="mb-4 h-12 w-12 text-neutral-800" />
+                  <p className="text-sm font-bold text-neutral-600">
+                    No cinematic saved items detected.
+                  </p>
+                </div>
               </TabsContent>
               <TabsContent value="reviews">
-                {profile.reviews?.length === 0 ? (
-                  <div className="py-8 text-center text-muted-foreground">
-                    No reviews yet
-                  </div>
-                ) : (
-                  <div className="text-sm">
-                    // TODO: after added watchlist then redefined
-                    {JSON.stringify(profile.reviews, null, 2)}
-                  </div>
-                )}
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Star className="mb-4 h-12 w-12 text-neutral-800" />
+                  <p className="text-sm font-bold text-neutral-600">
+                    Your critic journey hasn't started yet.
+                  </p>
+                </div>
               </TabsContent>
               <TabsContent value="comments">
-                {profile.comments?.length === 0 ? (
-                  <div className="py-8 text-center text-muted-foreground">
-                    No comments yet
-                  </div>
-                ) : (
-                  <div className="text-sm">
-                    // TODO: after added watchlist then redefined
-                    {JSON.stringify(profile.comments, null, 2)}
-                  </div>
-                )}
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <MessageSquare className="mb-4 h-12 w-12 text-neutral-800" />
+                  <p className="text-sm font-bold text-neutral-600">
+                    No active discussions found.
+                  </p>
+                </div>
               </TabsContent>
-              <TabsContent value="sessions">
-                <div className="space-y-3">
+
+              <TabsContent value="sessions" className="mt-0">
+                <div className="space-y-4">
                   {profile.sessions?.map((session, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between rounded-lg border p-3"
+                      className="group flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 p-4 transition-all hover:border-white/10"
                     >
-                      <div className="flex items-center gap-3">
-                        {/* Green dot for current session */}
-                        {sessionToken && sessionToken === session.token && (
-                          <span className="relative flex size-2">
-                            <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                            <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
-                          </span>
-                        )}
-                        <div className="flex-1 truncate">
-                          <p className="text-sm font-medium truncate">
+                      <div className="flex items-center gap-4">
+                        <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-black/40 border border-white/5">
+                          {sessionToken === session.token ? (
+                            <>
+                              <div className="absolute inset-0 animate-pulse rounded-xl bg-green-500/10" />
+                              <Activity className="h-5 w-5 text-green-500" />
+                            </>
+                          ) : (
+                            <Activity className="h-5 w-5 text-neutral-700" />
+                          )}
+                        </div>
+                        <div className="max-w-[200px] sm:max-w-md">
+                          <p className="truncate text-sm font-bold text-white">
                             {session.userAgent}
+                          </p>
+                          <p className="text-[10px] font-black tracking-widest text-neutral-600 uppercase">
+                            {sessionToken === session.token
+                              ? "Authorized Interaction"
+                              : "Inactive Link"}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">
-                          {sessionToken && sessionToken === session.token
-                            ? "Current"
-                            : "Other"}
-                        </span>
-                        {sessionToken && sessionToken !== session.token && (
+
+                      <div className="flex items-center gap-3">
+                        {sessionToken === session.token ? (
+                          <span className="rounded-full bg-green-600/10 px-3 py-1 text-[10px] font-black tracking-widest text-green-500 uppercase">
+                            Active
+                          </span>
+                        ) : (
                           <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => {
                               Swal.fire({
-                                title: "Are you sure?",
-                                text: "You won't be able to revert this!",
+                                title: "Terminate Session?",
+                                text: "You will be logged out on that device.",
                                 icon: "warning",
                                 showCancelButton: true,
-                                confirmButtonColor: "#3085d6",
-                                cancelButtonColor: "#d33",
-                                confirmButtonText: "Yes, delete it!",
+                                confirmButtonColor: "#e50914",
+                                cancelButtonColor: "#1a1a1a",
+                                confirmButtonText: "Terminate Link",
+                                background: "#0a0a0a",
+                                color: "#fff",
                               }).then((result) => {
                                 if (result.isConfirmed) {
                                   logoutSingleMutation.mutate({
@@ -328,28 +366,29 @@ const MyProfile = ({ sessionToken }: { sessionToken: string | undefined }) => {
                               });
                             }}
                             disabled={logoutSingleMutation.isPending}
-                            className="size-8 text-muted-foreground hover:text-red-500 cursor-pointer"
+                            className="h-10 w-10 rounded-xl text-neutral-700 hover:bg-red-600/10 hover:text-red-600"
                           >
                             {logoutSingleMutation.isPending ? (
-                              <Loader2Icon className="size-4 animate-spin" />
+                              <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
-                              <Trash2Icon className="size-4 cursor-pointer" />
+                              <Trash2 className="h-4 w-4" />
                             )}
                           </Button>
                         )}
+                        <ChevronRight className="h-4 w-4 text-neutral-800" />
                       </div>
                     </div>
                   ))}
                   {profile.sessions?.length === 0 && (
-                    <div className="py-4 text-center text-muted-foreground">
-                      No sessions
+                    <div className="py-12 text-center text-neutral-600">
+                      No active sessions detected.
                     </div>
                   )}
                 </div>
               </TabsContent>
-            </CardContent>
+            </div>
           </Tabs>
-        </Card>
+        </motion.div>
       </div>
     </div>
   );

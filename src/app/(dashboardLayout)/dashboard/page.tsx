@@ -1,5 +1,7 @@
+import UserDashboardContent from "@/components/modules/Dashboard/UserDashboardContent";
+
 const DashboardPage = () => {
-  return <div>DashboardPage</div>;
+  return <UserDashboardContent />;
 };
 
 export default DashboardPage;

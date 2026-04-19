@@ -42,7 +42,9 @@ export interface IGetPaymentsResponse {
   meta: IPaymentMeta;
 }
 
-export async function getUserPayments(queryString: string = ""): Promise<IGetPaymentsResponse | null> {
+export async function getUserPayments(
+  queryString: string = "",
+): Promise<IGetPaymentsResponse | null> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("accessToken")?.value;
@@ -59,6 +61,7 @@ export async function getUserPayments(queryString: string = ""): Promise<IGetPay
       },
     });
 
+    console.log(res, "payment.servicer");
     return (res as any) ?? null;
   } catch (error) {
     console.error("Error fetching user payments:", error);

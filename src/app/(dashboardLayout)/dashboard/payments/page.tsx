@@ -1,4 +1,4 @@
-import Payments from "@/components/modules/Dashboard/Payments";
+import Payments from "@/components/modules/Dashboard/Payments/Payment";
 import { getUserPayments } from "@/services/Dashboard/payment.service";
 import {
   dehydrate,
