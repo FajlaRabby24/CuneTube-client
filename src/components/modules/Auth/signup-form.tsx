@@ -1,15 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import GoogleLoginButton from "@/components/shared/forms/GoogleLoginButton";
 import InputField from "@/components/shared/forms/InputField";
 import PasswordField from "@/components/shared/forms/PasswordField";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
@@ -22,7 +16,6 @@ import { uploadToCloudinary } from "@/lib/utils/uploadFileInCloudinary";
 import { validateImage } from "@/lib/utils/validateImage";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -69,8 +62,6 @@ export function SignupForm({ redirectPath }: RegisterFormProps) {
             return;
           }
           image = uploadImage?.data?.url;
-          console.log(uploadImage, "from sign up form");
-          // return;
         }
         const result = (await mutateAsync({
           name: value.name,
@@ -82,7 +73,7 @@ export function SignupForm({ redirectPath }: RegisterFormProps) {
           message: string;
           route: string;
         };
-        console.log({ result }, "from sign up form");
+        
         if (!result.success) {
           toast.error(result.message || "Registration failed");
           return;
@@ -92,7 +83,6 @@ export function SignupForm({ redirectPath }: RegisterFormProps) {
         router.push(result.route);
       } catch (error) {
         toast.error("Registration failed. Please try again.");
-        console.log(error, "Error from signup-form service");
         if (image) {
           await deleteFromCloudinary(image, "image");
         }
@@ -102,135 +92,116 @@ export function SignupForm({ redirectPath }: RegisterFormProps) {
 
   return (
     <div className={cn("flex flex-col gap-6")}>
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <Card>
-            <CardHeader className="text-center">
-              <Link href="/" className="text-2xl font-bold">
-                CT
-              </Link>
-              <CardTitle className="text-xl">Create your account</CardTitle>
-              <CardDescription className="text-muted-foreground">
-                Enter your email below to create your account
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form
-                method="POST"
-                action="#"
-                noValidate
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  form.handleSubmit();
-                }}
-              >
-                <FieldGroup>
-                  <Field className="grid grid-cols-2 gap-4">
-                    {/* email  */}
-                    <form.Field
-                      name="name"
-                      validators={{ onChange: registerZodSchema.shape.name }}
-                    >
-                      {(field) => (
-                        <InputField
-                          field={field}
-                          label="Full Name"
-                          type="text"
-                          placeholder="John Doe"
-                        />
-                      )}
-                    </form.Field>
+      <form
+        method="POST"
+        action="#"
+        noValidate
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+      >
+        <FieldGroup>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form.Field
+              name="name"
+              validators={{ onChange: registerZodSchema.shape.name }}
+            >
+              {(field) => (
+                <InputField
+                  field={field}
+                  label="Full Name"
+                  type="text"
+                  placeholder="John Doe"
+                  className="bg-white/5 border-white/10 text-white focus:border-red-600 transition-colors"
+                  labelClassName="text-slate-300 font-bold uppercase tracking-widest text-[10px]"
+                />
+              )}
+            </form.Field>
 
-                    <Field>
-                      <FieldLabel htmlFor="image">Image (optional)</FieldLabel>
-                      <ImagePreview
-                        onFileChange={(file) =>
-                          form.setFieldValue("image", file)
-                        }
-                      />
-                    </Field>
-                  </Field>
-
-                  {/* email  */}
-                  <Field>
-                    <form.Field
-                      name="email"
-                      validators={{ onChange: registerZodSchema.shape.email }}
-                    >
-                      {(field) => (
-                        <InputField
-                          field={field}
-                          label="Email"
-                          type="email"
-                          placeholder="example@gamil.com"
-                        />
-                      )}
-                    </form.Field>
-                  </Field>
-
-                  <Field>
-                    {/* password  */}
-                    <form.Field
-                      name="password"
-                      validators={{
-                        onChange: registerZodSchema.shape.password,
-                      }}
-                    >
-                      {(field) => (
-                        <PasswordField
-                          field={field}
-                          label="Password"
-                          id="password"
-                          placeholder="Password"
-                        />
-                      )}
-                    </form.Field>
-                    <FieldDescription>
-                      Must be at least 8 characters long.
-                    </FieldDescription>
-                  </Field>
-
-                  <Field>
-                    <form.Subscribe
-                      selector={(s) => [s.canSubmit, s.isSubmitting] as const}
-                    >
-                      {([canSubmit, isSubmitting]) => (
-                        <AppSubmitButton
-                          isPending={isSubmitting || isPending}
-                          pendingLabel="Registering..."
-                          disabled={!canSubmit}
-                        >
-                          Register
-                        </AppSubmitButton>
-                      )}
-                    </form.Subscribe>
-                    <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card my-2">
-                      Or continue with
-                    </FieldSeparator>
-                    <Field>
-                      <GoogleLoginButton />
-                    </Field>
-                    <FieldDescription className="text-center">
-                      Already have an account? <Link href="/login">Login</Link>
-                    </FieldDescription>
-                  </Field>
-                </FieldGroup>
-              </form>
-            </CardContent>
-          </Card>
-          <div className="relative hidden bg-muted md:block">
-            <Image
-              src="/auth.svg"
-              alt="Image"
-              loading="eager"
-              className="absolute inset-0 h-full w-full  object-cover "
-              width={500}
-              height={500}
-            />
+            <Field className="space-y-2">
+              <FieldLabel htmlFor="image" className="text-slate-300 font-bold uppercase tracking-widest text-[10px]">
+                Profile Picture
+              </FieldLabel>
+              <ImagePreview
+                onFileChange={(file) => form.setFieldValue("image", file)}
+                className="bg-white/5 border-white/10 text-slate-400 hover:text-white transition-colors h-12"
+              />
+            </Field>
           </div>
-        </CardContent>
-      </Card>
+
+          <form.Field
+            name="email"
+            validators={{ onChange: registerZodSchema.shape.email }}
+          >
+            {(field) => (
+              <InputField
+                field={field}
+                label="Email Address"
+                type="email"
+                placeholder="example@gmail.com"
+                className="bg-white/5 border-white/10 text-white focus:border-red-600 transition-colors"
+                labelClassName="text-slate-300 font-bold uppercase tracking-widest text-[10px]"
+              />
+            )}
+          </form.Field>
+
+          <form.Field
+            name="password"
+            validators={{
+              onChange: registerZodSchema.shape.password,
+            }}
+          >
+            {(field) => (
+              <PasswordField
+                field={field}
+                label="Password"
+                id="password"
+                placeholder="••••••••"
+                className="bg-white/5 border-white/10 text-white focus:border-red-600 transition-colors"
+                labelClassName="text-slate-300 font-bold uppercase tracking-widest text-[10px]"
+              />
+            )}
+          </form.Field>
+          
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+            Must be at least 8 characters.
+          </p>
+
+          <Field className="pt-4">
+            <form.Subscribe
+              selector={(s) => [s.canSubmit, s.isSubmitting] as const}
+            >
+              {([canSubmit, isSubmitting]) => (
+                <AppSubmitButton
+                  isPending={isSubmitting || isPending}
+                  pendingLabel="Creating Account..."
+                  disabled={!canSubmit}
+                  className="bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-widest h-14 rounded-xl transition-all shadow-[0_0_20px_rgba(229,9,20,0.4)]"
+                >
+                  Create Account
+                </AppSubmitButton>
+              )}
+            </form.Subscribe>
+
+            <FieldSeparator className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] my-6">
+              Or join with
+            </FieldSeparator>
+            
+            <Field>
+              <GoogleLoginButton className="bg-white/5 border-white/10 text-white hover:bg-white/10 h-14 rounded-xl transition-all" />
+            </Field>
+
+            <FieldDescription className="text-center mt-8 text-slate-400 font-medium">
+              Already have an account?{" "}
+              <Link href="/login" className="text-red-600 font-black hover:underline underline-offset-4">
+                Sign in
+              </Link>
+            </FieldDescription>
+          </Field>
+        </FieldGroup>
+      </form>
     </div>
   );
 }

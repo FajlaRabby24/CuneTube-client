@@ -9,9 +9,13 @@ import { useEffect } from "react";
 
 interface ImagePreviewProps {
   onFileChange?: (file: File | null) => void;
+  className?: string;
 }
 
-export default function ImagePreview({ onFileChange }: ImagePreviewProps) {
+export default function ImagePreview({
+  onFileChange,
+  className,
+}: ImagePreviewProps) {
   const [{ files }, { removeFile, openFileDialog, getInputProps }] =
     useFileUpload({
       accept: "image/*",

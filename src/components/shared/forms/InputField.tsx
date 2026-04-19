@@ -24,6 +24,7 @@ type InputFieldProps = {
   append?: React.ReactNode;
   prepend?: React.ReactNode;
   className?: string;
+  labelClassName?: string;
   disabled?: boolean;
 };
 
@@ -35,6 +36,7 @@ const InputField = ({
   append,
   prepend,
   className,
+  labelClassName,
   disabled = false,
 }: InputFieldProps) => {
   const firstError =
@@ -48,14 +50,14 @@ const InputField = ({
     <div className={cn("space-y-1.5", className)}>
       <FieldLabel
         htmlFor={field.name}
-        className={cn(hasError && "text-destructive")}
+        className={cn(hasError && "text-destructive", labelClassName)}
       >
         {label}
       </FieldLabel>
 
       <div className="relative">
         {prepend && (
-          <div className="absolute inset-y-0 left-0 items-center pl-3 pointer-events-none z-10">
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10">
             {prepend}
           </div>
         )}

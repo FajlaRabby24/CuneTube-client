@@ -29,6 +29,7 @@ type InputFieldProps = {
   append?: React.ReactNode;
   prepend?: React.ReactNode;
   className?: string;
+  labelClassName?: string;
   disabled?: boolean;
 };
 
@@ -41,6 +42,7 @@ export default function PasswordField({
   append,
   prepend,
   className,
+  labelClassName,
   disabled = false,
 }: InputFieldProps) {
   const [isVisible, setIsVisible] = useState<boolean>(false);
@@ -59,7 +61,7 @@ export default function PasswordField({
       <div className={cn("flex items-center")}>
         <FieldLabel
           htmlFor={field.name}
-          className={cn(hasError && "text-destructive")}
+          className={cn(hasError && "text-destructive", labelClassName)}
         >
           {label}
         </FieldLabel>

@@ -2,182 +2,124 @@
 
 import AppSubmitButton from "@/components/shared/forms/AppSubmitButton";
 import PasswordField from "@/components/shared/forms/PasswordField";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
-import InputField from "@/components/shared/forms/InputField";
-import { cn } from "@/lib/utils";
+import { FieldGroup } from "@/components/ui/field";
 import { resetPasswordSchema } from "@/zod/auth.validation";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
-import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
 import { toast } from "sonner";
-import { resetPasswordAction } from "../../../services/Auth/resetPassword.service";
+import { resetPasswordAction } from "@/services/Auth/resetPassword.service";
 
-interface ResetPasswordFormProps {
-  className?: string;
-}
-
-export function ResetPasswordForm({ className, ...props }: ResetPasswordFormProps) {
+export function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const emailFromUrl = searchParams.get("email") || "";
-  
-  const [otp, setOtp] = useState("");
-  
+  const email = searchParams.get("email");
+  const otp = searchParams.get("otp");
+
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: (payload: { email: string; otp: string; newPassword: string }) => 
-      resetPasswordAction(payload),
+    mutationFn: (password: string) => 
+      resetPasswordAction({ 
+        email: email as string, 
+        otp: otp as string, 
+        newPassword: password 
+      }),
   });
 
   const form = useForm({
     defaultValues: {
-      email: emailFromUrl,
-      newPassword: "",
+      password: "",
+      confirmPassword: "",
     },
-
     onSubmit: async ({ value }) => {
-      try {
-        const result = (await mutateAsync({
-          email: value.email,
-          otp,
-          newPassword: value.newPassword,
-        })) as {
-          success: boolean;
-          message: string;
-          route: string;
-        };
-        if (!result.success) {
-          toast.error(result.message || "Password reset failed");
-          return;
-        }
+      if (!email || !otp) {
+        toast.error("Required reset information (email/otp) is missing from the URL.");
+        return;
+      }
 
-        toast.success(result.message || "Password reset successfully");
-        router.push(result.route);
-      } catch {
-        toast.error("Password reset failed. Please try again.");
+      try {
+        const result = await mutateAsync(value.password);
+        if (result.success) {
+          toast.success(result.message);
+          router.push("/login");
+        } else {
+          toast.error(result.message);
+        }
+      } catch (error) {
+        toast.error("Failed to reset password");
       }
     },
   });
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <div className="relative hidden bg-muted md:block">
-            <Image
-              src="/auth.svg"
-              alt="Image"
-              loading="eager"
-              className="absolute inset-0 h-full w-full object-cover"
-              width={500}
-              height={500}
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        form.handleSubmit();
+      }}
+    >
+      <FieldGroup className="space-y-6">
+        <form.Field
+          name="password"
+          validators={{ 
+            onChange: resetPasswordSchema.shape.newPassword 
+          }}
+        >
+          {(field) => (
+            <PasswordField
+              field={field}
+              label="New Password"
+              id="password"
+              placeholder="••••••••"
+              className="bg-white/5 border-white/10 text-white focus:border-red-600 transition-colors"
+              labelClassName="text-slate-300 font-bold uppercase tracking-widest text-[10px]"
             />
-          </div>
-          <Card>
-            <CardHeader className="text-center">
-              <CardTitle className="text-xl">Reset Password</CardTitle>
-              <CardDescription className="text-muted-foreground">
-                Enter your email, OTP and new password
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form
-                method="POST"
-                action="#"
-                noValidate
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  form.handleSubmit();
-                }}
-              >
-                <FieldGroup>
-                  <form.Field name="email">
-                    {(field) => (
-                      <InputField
-                        field={field}
-                        label="Email"
-                        type="email"
-                        placeholder="example@gmail.com"
-                      />
-                    )}
-                  </form.Field>
+          )}
+        </form.Field>
 
-                  <Field>
-                    <FieldLabel className="text-center justify-center">
-                      Enter 6-digit OTP
-                    </FieldLabel>
-                    <div className="flex justify-center">
-                      <InputOTP
-                        maxLength={6}
-                        value={otp}
-                        onChange={(value) => setOtp(value)}
-                      >
-                        <InputOTPGroup>
-                          <InputOTPSlot index={0} />
-                          <InputOTPSlot index={1} />
-                          <InputOTPSlot index={2} />
-                          <InputOTPSlot index={3} />
-                          <InputOTPSlot index={4} />
-                          <InputOTPSlot index={5} />
-                        </InputOTPGroup>
-                      </InputOTP>
-                    </div>
-                  </Field>
+        <form.Field
+          name="confirmPassword"
+          validators={{
+            onChangeListenTo: ["password"],
+            onChange: ({ value, fieldApi }) => {
+              if (value !== fieldApi.form.getFieldValue("password")) {
+                return "Passwords do not match";
+              }
+              return undefined;
+            },
+          }}
+        >
+          {(field) => (
+            <PasswordField
+              field={field}
+              label="Confirm Password"
+              id="confirmPassword"
+              placeholder="••••••••"
+              className="bg-white/5 border-white/10 text-white focus:border-red-600 transition-colors"
+              labelClassName="text-slate-300 font-bold uppercase tracking-widest text-[10px]"
+            />
+          )}
+        </form.Field>
 
-                  <form.Field name="newPassword">
-                    {(field) => (
-                      <PasswordField
-                        field={field}
-                        label="New Password"
-                        id="newPassword"
-                        placeholder="Enter new password"
-                      />
-                    )}
-                  </form.Field>
-                  <FieldDescription>
-                    Must be at least 8 characters long.
-                  </FieldDescription>
+        <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting] as const}>
+          {([canSubmit, isSubmitting]) => (
+            <AppSubmitButton
+              isPending={isSubmitting || isPending}
+              pendingLabel="Resetting..."
+              disabled={!canSubmit || !email || !otp}
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-widest h-14 rounded-xl transition-all shadow-[0_0_20px_rgba(229,9,20,0.4)]"
+            >
+              Reset Password
+            </AppSubmitButton>
+          )}
+        </form.Subscribe>
 
-                  <Field>
-                    <form.Subscribe
-                      selector={(s) => [s.canSubmit, s.isSubmitting] as const}
-                    >
-                      {([, isSubmitting]) => (
-                        <AppSubmitButton
-                          isPending={isSubmitting || isPending}
-                          pendingLabel="Resetting..."
-                          disabled={otp.length !== 6}
-                        >
-                          Reset Password
-                        </AppSubmitButton>
-                      )}
-                    </form.Subscribe>
-                  </Field>
-                </FieldGroup>
-              </form>
-            </CardContent>
-          </Card>
-        </CardContent>
-      </Card>
-    </div>
+        {(!email || !otp) && (
+          <p className="text-center text-xs font-bold text-red-500 uppercase tracking-widest">
+            Invalid reset link. Please check your email.
+          </p>
+        )}
+      </FieldGroup>
+    </form>
   );
 }

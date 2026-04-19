@@ -1,184 +1,117 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import AppSubmitButton from "@/components/shared/forms/AppSubmitButton";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Field,
   FieldDescription,
   FieldGroup,
-  FieldLabel,
 } from "@/components/ui/field";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { cn } from "@/lib/utils";
-import { verifyEmailAction } from "@/services/Auth/verifyEmail.service";
-import { IVerifyEmailOtpPayload } from "@/types/auth.types";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
-import Image from "next/image";
-import Link from "next/link";
+import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { toast } from "sonner";
+import { verifyEmailAction } from "../../../services/Auth/verifyEmail.service";
 
-interface VerifyEmailFormProps {
-  email?: string;
-  redirectPath?: string;
+export interface IVerifyEmailForm {
+  email: string;
 }
 
-export function VerifyEmailForm({
-  email: initialEmail,
-  redirectPath,
-}: VerifyEmailFormProps) {
+export function VerifyEmailForm({ email }: IVerifyEmailForm) {
   const router = useRouter();
-  const [otp, setOtp] = useState("");
-  const { mutateAsync } = useMutation({
-    mutationFn: ({ email, otp }: IVerifyEmailOtpPayload) =>
-      verifyEmailAction(email, otp, redirectPath),
+
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (otp: string) => verifyEmailAction({ email, otp }),
   });
 
   const form = useForm({
     defaultValues: {
       otp: "",
-      email: "",
     },
-
     onSubmit: async ({ value }) => {
       try {
-        const result = (await mutateAsync({
-          email: initialEmail || "",
-          otp,
-        })) as {
-          success: boolean;
-          message: string;
-          route: string;
-        };
-        if (!result.success) {
-          toast.error(result.message || "Email verification failed");
-          return;
+        const result = await mutateAsync(value.otp);
+        if (result.success) {
+          toast.success(result.message);
+          router.push("/login");
+        } else {
+          toast.error(result.message);
         }
-
-        toast.success(result.message || "Email verification successful");
-        router.push(result?.route);
       } catch (error) {
-        toast.error("Email verification failed. Please try again.");
+        toast.error("An error occurred during verification.");
       }
     },
   });
 
   return (
-    <div className={cn("flex flex-col gap-6")}>
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <div className="relative hidden bg-muted md:block">
-            <Image
-              src="/auth.svg"
-              alt="Image"
-              loading="eager"
-              className="absolute inset-0 h-full w-full object-cover"
-              width={500}
-              height={500}
-            />
-          </div>
-          <Card>
-            <CardHeader className="text-center">
-              <CardTitle className="text-xl">Verify your email</CardTitle>
-              <CardDescription className="text-muted-foreground">
-                We have sent a verification code to your email
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form
-                method="POST"
-                action="#"
-                noValidate
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  form.handleSubmit();
-                }}
-              >
-                <FieldGroup>
-                  <Field>
-                    <div className="text-center text-sm text-muted-foreground">
-                      Code sent to:{" "}
-                      <span className="font-medium text-foreground">
-                        {initialEmail
-                          ? `${initialEmail.slice(0, 2)}${"*".repeat(initialEmail.indexOf("@") - 2)}${initialEmail.slice(initialEmail.indexOf("@"))}`
-                          : ""}
-                      </span>
-                    </div>
-                  </Field>
-                  <Field>
-                    <FieldLabel className="text-center justify-center">
-                      Enter 6-digit code
-                    </FieldLabel>
-                    <div className="flex justify-center">
-                      <InputOTP
-                        maxLength={6}
-                        value={otp}
-                        onChange={(value) => setOtp(value)}
-                      >
-                        <InputOTPGroup>
-                          <InputOTPSlot index={0} />
-                          <InputOTPSlot index={1} />
-                          <InputOTPSlot index={2} />
-                          <InputOTPSlot index={3} />
-                          <InputOTPSlot index={4} />
-                          <InputOTPSlot index={5} />
-                        </InputOTPGroup>
-                      </InputOTP>
-                    </div>
-                  </Field>
+    <div className="space-y-8">
+      <div className="text-center space-y-2">
+        <p className="text-slate-400 font-medium">
+          We've sent a 6-digit code to <span className="text-white font-bold">{email}</span>
+        </p>
+      </div>
 
-                  <Field>
-                    <form.Subscribe
-                      selector={(s) => [s.canSubmit, s.isSubmitting] as const}
-                    >
-                      {([, isSubmitting]) => (
-                        <AppSubmitButton
-                          isPending={isSubmitting}
-                          pendingLabel="Verifying..."
-                          disabled={otp.length !== 6}
-                        >
-                          Verify
-                        </AppSubmitButton>
-                      )}
-                    </form.Subscribe>
-                    <FieldDescription className="text-center">
-                      Did not receive the code?{" "}
-                      <Link
-                        href="#"
-                        className="text-primary underline-offset-4 hover:underline"
-                      >
-                        Resend
-                      </Link>
-                    </FieldDescription>
-                    <FieldDescription className="text-center">
-                      <Link
-                        href="/login"
-                        className="text-primary underline-offset-4 hover:underline"
-                      >
-                        Back to login
-                      </Link>
-                    </FieldDescription>
-                  </Field>
-                </FieldGroup>
-              </form>
-            </CardContent>
-          </Card>
-        </CardContent>
-      </Card>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+        className="flex flex-col items-center space-y-8"
+      >
+        <FieldGroup className="flex flex-col items-center">
+          <form.Field name="otp">
+            {(field) => (
+              <div className="space-y-4 flex flex-col items-center">
+                <InputOTP
+                  maxLength={6}
+                  pattern={REGEXP_ONLY_DIGITS}
+                  value={field.state.value}
+                  onChange={(value) => field.handleChange(value)}
+                >
+                  <InputOTPGroup className="gap-2">
+                    {[0, 1, 2, 3, 4, 5].map((index) => (
+                      <InputOTPSlot
+                        key={index}
+                        index={index}
+                        className="size-12 md:size-14 rounded-xl border-white/10 bg-white/5 text-white text-xl font-bold focus:border-red-600 transition-all data-[active=true]:border-red-600 data-[active=true]:ring-1 data-[active=true]:ring-red-600"
+                      />
+                    ))}
+                  </InputOTPGroup>
+                </InputOTP>
+                {field.state.meta.errors && (
+                  <p className="text-red-500 text-xs font-bold uppercase tracking-widest">
+                    {field.state.meta.errors}
+                  </p>
+                )}
+              </div>
+            )}
+          </form.Field>
+
+          <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting] as const}>
+            {([canSubmit, isSubmitting]) => (
+              <AppSubmitButton
+                isPending={isSubmitting || isPending}
+                pendingLabel="Verifying..."
+                disabled={!canSubmit || form.getFieldValue("otp").length !== 6}
+                className="w-full max-w-xs bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-widest h-14 rounded-xl transition-all shadow-[0_0_20px_rgba(229,9,20,0.4)]"
+              >
+                Verify Code
+              </AppSubmitButton>
+            )}
+          </form.Subscribe>
+        </FieldGroup>
+      </form>
+
+      <div className="text-center">
+        <button className="text-sm font-bold text-slate-500 hover:text-red-600 transition-colors uppercase tracking-widest">
+          Didn't receive a code? Resend
+        </button>
+      </div>
     </div>
   );
 }
