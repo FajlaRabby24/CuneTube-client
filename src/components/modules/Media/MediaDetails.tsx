@@ -21,6 +21,7 @@ import { getYouTubeVideoId } from "@/lib/utils/getYoutubeVedioId";
 import { getUserInfo } from "@/services/Auth/getMe.service";
 import { IMediaResponse } from "@/services/Media/getMedia.service";
 import { addToWatchlist } from "@/services/Watchlist/watchlist.service";
+import ReviewSection from "./Reviews/ReviewSection";
 
 interface MediaDetailsProps {
   media: IMediaResponse;
@@ -346,6 +347,10 @@ const MediaDetails = ({ media }: MediaDetailsProps) => {
             ))}
           </div>
         </div>
+      </div>
+
+      <div className="container mx-auto px-4 mt-20">
+        <ReviewSection mediaId={media.id} />
       </div>
     </div>
   );
