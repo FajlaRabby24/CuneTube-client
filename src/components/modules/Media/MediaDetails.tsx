@@ -19,6 +19,7 @@ import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { getYouTubeVideoId } from "@/lib/utils/getYoutubeVedioId";
 import { getUserInfo } from "@/services/Auth/getMe.service";
 import { IMediaResponse } from "@/services/Media/getMedia.service";
+import { addViews } from "@/services/Media/mediaActions.service";
 import { getUserSubscription } from "@/services/Subscription/subscription.service";
 import { addToWatchlist } from "@/services/Watchlist/watchlist.service";
 import ReviewSection from "./Reviews/ReviewSection";
@@ -37,6 +38,7 @@ const MediaDetails = ({ media }: MediaDetailsProps) => {
   const handleWatchNow = async () => {
     if (media.pricingType === "FREE") {
       setIsPlaying(true);
+      addViews(media.id);
       return;
     }
 
@@ -57,6 +59,7 @@ const MediaDetails = ({ media }: MediaDetailsProps) => {
         subscription.plan !== "FREE"
       ) {
         setIsPlaying(true);
+        addViews(media.id);
       } else {
         toast.info("This content requires a premium subscription.", {
           description:
@@ -260,7 +263,7 @@ const MediaDetails = ({ media }: MediaDetailsProps) => {
               {media.synopsis}
             </p>
           </section>
-          
+
           {/* Tags moved below synopsis */}
           <div className="flex flex-wrap gap-2 pt-4">
             {media.tags.map((t) => (

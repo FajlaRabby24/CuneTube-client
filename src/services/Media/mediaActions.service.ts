@@ -85,3 +85,16 @@ export async function updateMedia({ id, data }: { id: string; data: any }) {
     };
   }
 }
+
+export async function addViews(mediaId: string) {
+  try {
+    const res = await httpClient.post(`/media/${mediaId}/add-views`, {});
+    return {
+      success: true,
+      data: res?.data,
+    };
+  } catch (error: any) {
+    console.error("Error adding view:", error);
+    return { success: false };
+  }
+}
