@@ -23,6 +23,10 @@ export interface IDashboardStats {
     reviews: number;
     reports: number;
   };
+  revenueTimeline: {
+    name: string;
+    revenue: number;
+  }[];
 }
 
 export const getDashboardStats = async () => {

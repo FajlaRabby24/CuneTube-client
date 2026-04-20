@@ -62,16 +62,7 @@ const AdminDashboard = ({ sessionToken }: { sessionToken?: string }) => {
     );
   }
 
-  // Demo Monthly Revenue for premium visualization
-  const demoRevenueData = [
-    { name: "Jan", revenue: 4500 },
-    { name: "Feb", revenue: 5200 },
-    { name: "Mar", revenue: 4800 },
-    { name: "Apr", revenue: 6100 },
-    { name: "May", revenue: 5900 },
-    { name: "Jun", revenue: 7500 },
-    { name: "Jul", revenue: 8200 },
-  ];
+
 
   return (
     <div className="min-h-screen space-y-8 p-6 lg:p-10">
@@ -143,12 +134,12 @@ const AdminDashboard = ({ sessionToken }: { sessionToken?: string }) => {
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
                  <TrendingUp className="h-5 w-5 text-red-600" /> Revenue Pulse
               </h3>
-              <p className="text-xs text-neutral-600">Global platform earnings (Mock Projection)</p>
+              <p className="text-xs text-neutral-600">Global platform earnings (Last 6 Months)</p>
             </div>
           </div>
           <div className="h-[320px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-               <AreaChart data={demoRevenueData}>
+               <AreaChart data={stats.revenueTimeline}>
                  <defs>
                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                      <stop offset="5%" stopColor="#e50914" stopOpacity={0.4} />
