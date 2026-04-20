@@ -55,7 +55,7 @@ const MoviesListing = ({ initialQueryString }: MoviesListingProps) => {
 
   const page = Number(searchParams.get("page")) || 1;
   const searchTerm = searchParams.get("searchTerm") || "";
-  const genre = searchParams.get("genre") || "";
+  const genre = searchParams.get("searchTerm") || "";
   const sortBy = searchParams.get("sortBy") || "releaseYear";
   const sortOrder = searchParams.get("sortOrder") || "desc";
 
@@ -175,7 +175,7 @@ const MoviesListing = ({ initialQueryString }: MoviesListingProps) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-slate-900 border-white/10 text-white rounded-xl min-w-48">
                 <DropdownMenuItem
-                  onClick={() => updateFilters({ genre: null })}
+                  onClick={() => updateFilters({ searchTerm: null })}
                   className="cursor-pointer"
                 >
                   All Genres
@@ -183,7 +183,7 @@ const MoviesListing = ({ initialQueryString }: MoviesListingProps) => {
                 {genres.map((g) => (
                   <DropdownMenuItem
                     key={g}
-                    onClick={() => updateFilters({ genre: g })}
+                    onClick={() => updateFilters({ searchTerm: g })}
                     className={`cursor-pointer ${genre === g ? "text-primary font-bold" : ""}`}
                   >
                     {g}
