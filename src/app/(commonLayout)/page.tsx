@@ -1,5 +1,6 @@
 import Banner from "@/components/modules/Home/Banner";
-import CTASection from "@/components/modules/Home/CTASection";
+import DeviceShowcase from "@/components/modules/Home/DeviceShowcase";
+import FAQSection from "@/components/modules/Home/FAQSection";
 import FeaturedReviews from "@/components/modules/Home/FeaturedReviews";
 import GenreCategories from "@/components/modules/Home/GenreCategories";
 import Stats from "@/components/modules/Home/Stats";
@@ -15,7 +16,8 @@ const HomePage = () => {
       <GenreCategories />
       <FeaturedReviews />
       <TopRatedMovies />
-      <CTASection />
+      <DeviceShowcase />
+      <FAQSection />
     </div>
   );
 };
