@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "motion/react";
+
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -79,8 +81,8 @@ interface ReviewManagementProps {
 }
 
 const STATUS_OPTIONS = [
-  { value: "ALL", label: "All Statuses" },
-  { value: "PENDING", label: "Pending" },
+  { value: "ALL", label: "All Transmissions" },
+  { value: "PENDING", label: "Pending Review" },
   { value: "APPROVED", label: "Approved" },
   { value: "REJECTED", label: "Rejected" },
 ];
@@ -88,21 +90,21 @@ const STATUS_OPTIONS = [
 const statusBadge = (status: "PENDING" | "APPROVED" | "REJECTED") => {
   if (status === "APPROVED")
     return (
-      <Badge className="bg-green-500 text-white">
-        <CheckCircle2Icon className="mr-1 size-3" />
+      <Badge className="bg-emerald-600/20 text-emerald-400 ring-1 ring-emerald-600/40 rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-widest flex items-center gap-1 w-fit">
+        <span className="h-1 w-1 rounded-full bg-emerald-400" />
         Approved
       </Badge>
     );
   if (status === "REJECTED")
     return (
-      <Badge variant="destructive">
-        <XCircleIcon className="mr-1 size-3" />
+      <Badge className="bg-red-600/20 text-red-400 ring-1 ring-red-600/40 rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-widest flex items-center gap-1 w-fit">
+        <span className="h-1 w-1 rounded-full bg-red-400" />
         Rejected
       </Badge>
     );
   return (
-    <Badge className="bg-yellow-500 text-white">
-      <ClockIcon className="mr-1 size-3" />
+    <Badge className="bg-yellow-600/20 text-yellow-400 ring-1 ring-yellow-600/40 rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-widest flex items-center gap-1 w-fit">
+      <span className="h-1 w-1 rounded-full bg-yellow-400 animate-pulse" />
       Pending
     </Badge>
   );
@@ -282,33 +284,46 @@ const ReviewManagement = ({ initialQueryString }: ReviewManagementProps) => {
 
   if (isLoading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="size-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
+      <div className="flex h-[600px] items-center justify-center">
+        <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-red-600/10">
+          <div className="absolute inset-0 animate-ping rounded-full bg-red-600/20" />
+          <StarIcon className="h-8 w-8 animate-pulse text-red-600" />
+        </div>
       </div>
     );
   }
 
   return (
-    <>
-      <div className="space-y-4 p-3 md:p-6">
-        {/* Header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="min-h-screen space-y-8 p-6 text-white lg:p-10">
+      {/* Cinematic Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden rounded-3xl border border-white/5 bg-black/40 p-8 backdrop-blur-2xl"
+      >
+        <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-red-600/10 blur-3xl text-red-600" />
+        <div className="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Review Management</h1>
-            <p className="text-sm text-muted-foreground">
-              Moderate and manage all user reviews
+            <h1 className="text-4xl font-black italic tracking-tighter text-white uppercase">
+              Review Intelligence
+            </h1>
+            <p className="text-neutral-500 font-medium tracking-wide">
+              Monitor and moderate user review transmissions.
             </p>
           </div>
-
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-2">
             {/* Status Filter */}
             <Select value={statusFilter} onValueChange={handleStatusFilter}>
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="Filter by status" />
+              <SelectTrigger className="w-[180px] border-white/5 bg-white/5 text-white focus:border-red-600/40 focus:ring-0">
+                <SelectValue placeholder="System State" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="border-white/5 bg-black/90 text-white backdrop-blur-xl">
                 {STATUS_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
+                  <SelectItem
+                    key={opt.value}
+                    value={opt.value}
+                    className="focus:bg-red-600/20 focus:text-red-400"
+                  >
                     {opt.label}
                   </SelectItem>
                 ))}
@@ -317,212 +332,207 @@ const ReviewManagement = ({ initialQueryString }: ReviewManagementProps) => {
 
             {/* Search */}
             <div className="relative w-full sm:w-72">
-              <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-neutral-500" />
               <Input
-                placeholder="Search reviews..."
+                placeholder="Search transmissions..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 onKeyDown={(e) =>
                   e.key === "Enter" && handleSearch(searchInput)
                 }
-                className="pl-9"
+                className="pl-9 border-white/5 bg-white/5 text-white placeholder:text-neutral-600 focus:border-red-600/40 focus:ring-0"
               />
             </div>
           </div>
         </div>
+      </motion.div>
 
-        {/* Table */}
-        <div className="rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>User / Media</TableHead>
-                <TableHead>Review</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+      {/* Table Container */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="rounded-3xl border border-white/5 bg-black/40 p-1 backdrop-blur-xl"
+      >
+        <Table>
+          <TableHeader className="bg-white/5">
+            <TableRow className="border-white/5 hover:bg-transparent">
+              <TableHead className="font-bold text-neutral-400 uppercase tracking-wider text-xs">Operator / Media</TableHead>
+              <TableHead className="font-bold text-neutral-400 uppercase tracking-wider text-xs">Transmission</TableHead>
+              <TableHead className="font-bold text-neutral-400 uppercase tracking-wider text-xs">Signal Rating</TableHead>
+              <TableHead className="font-bold text-neutral-400 uppercase tracking-wider text-xs">Operational Status</TableHead>
+              <TableHead className="font-bold text-neutral-400 uppercase tracking-wider text-xs">Timestamp</TableHead>
+              <TableHead className="text-right font-bold text-neutral-400 uppercase tracking-wider text-xs">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {reviews.length === 0 ? (
+              <TableRow className="border-white/5 hover:bg-transparent">
+                <TableCell
+                  colSpan={6}
+                  className="py-12 text-center text-neutral-500 font-bold uppercase tracking-widest text-xs"
+                >
+                  No review transmissions detected
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {reviews.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="py-12 text-center text-muted-foreground"
-                  >
-                    No reviews found
+            ) : (
+              reviews.map((review: IAdminReview) => (
+                <TableRow key={review.id} className="border-white/5 transition-colors hover:bg-white/5">
+                  {/* User + Media */}
+                  <TableCell className="min-w-[180px]">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="size-7 overflow-hidden rounded-full bg-white/10 text-xs font-semibold flex items-center justify-center shrink-0">
+                          {review.user.image ? (
+                            <Image
+                              src={review.user.image}
+                              alt={review.user.name}
+                              width={28}
+                              height={28}
+                              className="size-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-white">{review.user.name.charAt(0).toUpperCase()}</span>
+                          )}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-bold text-white text-sm">{review.user.name}</span>
+                          <span className="text-[10px] uppercase font-bold tracking-wider text-neutral-500">
+                            {review.user.email}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {review.media.posterUrl && (
+                          <Image
+                            src={review.media.posterUrl}
+                            alt={review.media.title}
+                            width={24}
+                            height={36}
+                            className="rounded object-cover shrink-0"
+                          />
+                        )}
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-neutral-500 line-clamp-1">
+                          {review.media.title}
+                        </span>
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  {/* Review Content */}
+                  <TableCell className="max-w-[260px]">
+                    {review.title && (
+                      <p className="font-bold text-white text-sm mb-1 line-clamp-1">
+                        {review.title}
+                      </p>
+                    )}
+                    <p className="text-xs text-neutral-400 line-clamp-2 font-medium">
+                      {review.content}
+                    </p>
+                    {review.hasSpoiler && (
+                      <Badge className="mt-1 bg-yellow-600/20 text-yellow-400 ring-1 ring-yellow-600/40 rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-widest">
+                        <AlertTriangleIcon className="mr-1 size-3" />
+                        Spoiler
+                      </Badge>
+                    )}
+                  </TableCell>
+
+                  {/* Rating */}
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <StarIcon className="size-4 fill-yellow-400 text-yellow-400" />
+                      <span className="font-bold text-white text-sm">
+                        {review.rating}
+                        <span className="text-neutral-500">/10</span>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                      <span className="flex items-center gap-0.5">
+                        <ThumbsUpIcon className="size-3" />
+                        {review._count.likes}
+                      </span>
+                      <span className="flex items-center gap-0.5">
+                        <ThumbsDownIcon className="size-3" />
+                        {review._count.comments}
+                      </span>
+                    </div>
+                  </TableCell>
+
+                  {/* Status */}
+                  <TableCell>{statusBadge(review.status)}</TableCell>
+
+                  {/* Date */}
+                  <TableCell className="text-xs font-bold text-neutral-400 uppercase tracking-wider whitespace-nowrap">
+                    {new Date(review.createdAt).toLocaleDateString()}
+                  </TableCell>
+
+                  {/* Actions */}
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="size-8 rounded-lg bg-white/5 p-0 text-neutral-400 transition-colors hover:bg-red-600/20 hover:text-red-600">
+                          <MoreHorizontalIcon className="size-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="end"
+                        className="w-48 border-white/5 bg-black/90 p-1 text-white backdrop-blur-xl"
+                      >
+                        <DropdownMenuItem
+                          className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition-colors hover:bg-red-600/20 hover:text-red-600"
+                          onClick={() => handleViewDetails(review)}
+                        >
+                          <EyeIcon className="size-4" />
+                          Target Console
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className="bg-white/5" />
+                        {review.status !== "APPROVED" && (
+                          <DropdownMenuItem
+                            className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition-colors hover:bg-emerald-600/20 text-emerald-400 hover:text-emerald-500"
+                            onClick={() => handleApprove(review)}
+                            disabled={approveMutation.isPending}
+                          >
+                            <CheckCircle2Icon className="size-4" />
+                            Approve Signal
+                          </DropdownMenuItem>
+                        )}
+                        {review.status !== "REJECTED" && (
+                          <DropdownMenuItem
+                            className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition-colors hover:bg-orange-600/20 text-orange-400 hover:text-orange-500"
+                            onClick={() => handleReject(review)}
+                            disabled={rejectMutation.isPending}
+                          >
+                            <XCircleIcon className="size-4" />
+                            Reject Signal
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuSeparator className="bg-white/5" />
+                        <DropdownMenuItem
+                          className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition-colors hover:bg-red-600/20 text-red-400 hover:text-red-500"
+                          onClick={() => handleDelete(review)}
+                          disabled={deleteMutation.isPending}
+                        >
+                          <Trash2Icon className="size-4" />
+                          Purge Log
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              ) : (
-                reviews.map((review: IAdminReview) => (
-                  <TableRow key={review.id}>
-                    {/* User + Media */}
-                    <TableCell className="min-w-[180px]">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <div className="size-7 overflow-hidden rounded-full bg-muted text-xs font-semibold flex items-center justify-center shrink-0">
-                            {review.user.image ? (
-                              <Image
-                                src={review.user.image}
-                                alt={review.user.name}
-                                width={28}
-                                height={28}
-                                className="size-full object-cover"
-                              />
-                            ) : (
-                              review.user.name.charAt(0).toUpperCase()
-                            )}
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium leading-none">
-                              {review.user.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {review.user.email}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {review.media.posterUrl && (
-                            <Image
-                              src={review.media.posterUrl}
-                              alt={review.media.title}
-                              width={24}
-                              height={36}
-                              className="rounded object-cover shrink-0"
-                            />
-                          )}
-                          <p className="text-xs text-muted-foreground line-clamp-1">
-                            {review.media.title}
-                          </p>
-                        </div>
-                      </div>
-                    </TableCell>
-
-                    {/* Review Content */}
-                    <TableCell className="max-w-[260px]">
-                      {review.title && (
-                        <p className="font-medium text-sm mb-1 line-clamp-1">
-                          {review.title}
-                        </p>
-                      )}
-                      <p className="text-xs text-muted-foreground line-clamp-2">
-                        {review.content}
-                      </p>
-                      {review.hasSpoiler && (
-                        <Badge
-                          variant="outline"
-                          className="mt-1 text-[10px] border-yellow-500 text-yellow-600"
-                        >
-                          <AlertTriangleIcon className="mr-1 size-3" />
-                          Spoiler
-                        </Badge>
-                      )}
-                    </TableCell>
-
-                    {/* Rating */}
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <StarIcon className="size-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-medium text-sm">
-                          {review.rating}
-                          <span className="text-muted-foreground">/10</span>
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-0.5">
-                          <ThumbsUpIcon className="size-3" />
-                          {review._count.likes}
-                        </span>
-                        <span className="flex items-center gap-0.5">
-                          <ThumbsDownIcon className="size-3" />
-                          {review._count.comments}
-                        </span>
-                      </div>
-                    </TableCell>
-
-                    {/* Status */}
-                    <TableCell>{statusBadge(review.status)}</TableCell>
-
-                    {/* Date */}
-                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                      {new Date(review.createdAt).toLocaleDateString()}
-                    </TableCell>
-
-                    {/* Actions */}
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="cursor-pointer"
-                          >
-                            <MoreHorizontalIcon className="size-5" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          align="end"
-                          className="w-44 space-y-1"
-                        >
-                          <DropdownMenuItem
-                            className="cursor-pointer"
-                            onClick={() => handleViewDetails(review)}
-                          >
-                            <EyeIcon className="mr-2 size-4" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          {review.status !== "APPROVED" && (
-                            <DropdownMenuItem
-                              className="cursor-pointer text-green-600 focus:text-green-600"
-                              onClick={() => handleApprove(review)}
-                              disabled={approveMutation.isPending}
-                            >
-                              <CheckCircle2Icon className="mr-2 size-4" />
-                              Approve
-                            </DropdownMenuItem>
-                          )}
-                          {review.status !== "REJECTED" && (
-                            <DropdownMenuItem
-                              className="cursor-pointer text-orange-600 focus:text-orange-600"
-                              onClick={() => handleReject(review)}
-                              disabled={rejectMutation.isPending}
-                            >
-                              <XCircleIcon className="mr-2 size-4" />
-                              Reject
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="cursor-pointer text-destructive focus:text-destructive"
-                            onClick={() => handleDelete(review)}
-                            disabled={deleteMutation.isPending}
-                          >
-                            <Trash2Icon className="mr-2 size-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+              ))
+            )}
+          </TableBody>
+        </Table>
 
         {/* Pagination */}
         {meta.totalPages > 1 && (
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-muted-foreground">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between px-6 py-4 border-t border-white/5">
+            <p className="text-xs font-bold text-neutral-600 uppercase tracking-widest">
               Showing {(meta.page - 1) * meta.limit + 1} to{" "}
               {Math.min(meta.page * meta.limit, meta.total)} of {meta.total}{" "}
-              reviews
+              Logs
             </p>
             <Pagination>
-              <PaginationContent>
+              <PaginationContent className="gap-2">
                 <PaginationItem>
                   <PaginationPrevious
                     href="#"
@@ -530,21 +540,28 @@ const ReviewManagement = ({ initialQueryString }: ReviewManagementProps) => {
                       e.preventDefault();
                       if (meta.page > 1) handlePageChange(meta.page - 1);
                     }}
-                    className={
-                      meta.page <= 1 ? "pointer-events-none opacity-50" : ""
-                    }
+                    className={`rounded-xl border-white/5 bg-white/5 text-neutral-400 transition-all hover:bg-red-600/10 hover:text-red-600 ${
+                      meta.page <= 1
+                        ? "pointer-events-none opacity-20"
+                        : "cursor-pointer"
+                    }`}
                   />
                 </PaginationItem>
                 {Array.from({ length: meta.totalPages }, (_, i) => i + 1).map(
                   (pageNum) => (
                     <PaginationItem key={pageNum}>
                       <PaginationLink
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handlePageChange(pageNum);
-                        }}
-                        isActive={meta.page === pageNum}
+                         href="#"
+                         onClick={(e) => {
+                           e.preventDefault();
+                           handlePageChange(pageNum);
+                         }}
+                         isActive={meta.page === pageNum}
+                         className={`rounded-xl transition-all ${
+                           meta.page === pageNum
+                             ? "bg-red-600 text-white hover:bg-red-700 border-none"
+                             : "bg-white/5 text-neutral-400 hover:bg-red-600/10 hover:text-red-600 border-white/5"
+                         }`}
                       >
                         {pageNum}
                       </PaginationLink>
@@ -559,33 +576,38 @@ const ReviewManagement = ({ initialQueryString }: ReviewManagementProps) => {
                       if (meta.page < meta.totalPages)
                         handlePageChange(meta.page + 1);
                     }}
-                    className={
+                    className={`rounded-xl border-white/5 bg-white/5 text-neutral-400 transition-all hover:bg-red-600/10 hover:text-red-600 ${
                       meta.page >= meta.totalPages
-                        ? "pointer-events-none opacity-50"
-                        : ""
-                    }
+                        ? "pointer-events-none opacity-20"
+                        : "cursor-pointer"
+                    }`}
                   />
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Review Details Dialog */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto border-white/5 bg-black/95 p-8 text-white backdrop-blur-2xl">
           <DialogHeader>
-            <DialogTitle>Review Details</DialogTitle>
-            <DialogDescription>Full details for this review</DialogDescription>
+            <DialogTitle className="text-2xl font-black italic tracking-tighter uppercase text-white">
+              Target Logistics
+            </DialogTitle>
+            <DialogDescription className="text-neutral-500 font-medium tracking-wide">
+              Detailed intelligence on the review transmission.
+            </DialogDescription>
           </DialogHeader>
 
           {selectedReview && (
-            <div className="space-y-5">
-              {/* Reviewer + Media */}
-              <div className="flex items-start gap-4">
-                <div className="shrink-0">
-                  <div className="size-12 overflow-hidden rounded-full bg-muted flex items-center justify-center text-lg font-semibold">
+            <div className="space-y-6">
+              {/* Reviewer Info */}
+              <div className="grid gap-2 rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur-sm">
+                <h4 className="text-xs font-black uppercase tracking-widest text-neutral-400">Operator Origin</h4>
+                <div className="flex items-start gap-4 mt-2">
+                  <div className="size-12 overflow-hidden rounded-full bg-white/10 flex items-center justify-center text-lg font-semibold shrink-0">
                     {selectedReview.user.image ? (
                       <Image
                         src={selectedReview.user.image}
@@ -595,29 +617,42 @@ const ReviewManagement = ({ initialQueryString }: ReviewManagementProps) => {
                         className="size-full object-cover"
                       />
                     ) : (
-                      selectedReview.user.name.charAt(0).toUpperCase()
+                      <span className="text-white">{selectedReview.user.name.charAt(0).toUpperCase()}</span>
                     )}
                   </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm flex-1">
+                    <div className="font-bold text-neutral-500 uppercase tracking-wider text-[10px]">Name:</div>
+                    <div className="font-bold text-white">{selectedReview.user.name}</div>
+                    <div className="font-bold text-neutral-500 uppercase tracking-wider text-[10px]">Transmission IP:</div>
+                    <div className="font-bold text-neutral-300">{selectedReview.user.email}</div>
+                    <div className="font-bold text-neutral-500 uppercase tracking-wider text-[10px]">Status:</div>
+                    <div>{statusBadge(selectedReview.status)}</div>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="font-semibold">{selectedReview.user.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedReview.user.email}
-                  </p>
-                  <div className="mt-1 flex flex-wrap gap-2">
-                    {statusBadge(selectedReview.status)}
-                    <Badge
-                      variant="outline"
-                      className="flex items-center gap-1"
-                    >
-                      <StarIcon className="size-3 text-yellow-400 fill-yellow-400" />
+              </div>
+
+              {/* Media */}
+              <div className="grid gap-2 rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur-sm">
+                <h4 className="text-xs font-black uppercase tracking-widest text-neutral-400">
+                  Target Media: <span className="text-blue-400">{selectedReview.media.title}</span>
+                </h4>
+                <div className="flex items-center gap-3 mt-2">
+                  {selectedReview.media.posterUrl && (
+                    <Image
+                      src={selectedReview.media.posterUrl}
+                      alt={selectedReview.media.title}
+                      width={40}
+                      height={60}
+                      className="rounded object-cover shrink-0"
+                    />
+                  )}
+                  <div className="flex items-center gap-4">
+                    <Badge className="bg-yellow-600/20 text-yellow-400 ring-1 ring-yellow-600/40 rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
+                      <StarIcon className="size-3 fill-yellow-400" />
                       {selectedReview.rating}/10
                     </Badge>
                     {selectedReview.hasSpoiler && (
-                      <Badge
-                        variant="outline"
-                        className="border-yellow-500 text-yellow-600"
-                      >
+                      <Badge className="bg-yellow-600/20 text-yellow-400 ring-1 ring-yellow-600/40 rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-widest">
                         <AlertTriangleIcon className="mr-1 size-3" />
                         Spoiler
                       </Badge>
@@ -626,123 +661,104 @@ const ReviewManagement = ({ initialQueryString }: ReviewManagementProps) => {
                 </div>
               </div>
 
-              {/* Media */}
-              <div className="flex items-center gap-3 rounded-lg border p-3">
-                {selectedReview.media.posterUrl && (
-                  <Image
-                    src={selectedReview.media.posterUrl}
-                    alt={selectedReview.media.title}
-                    width={40}
-                    height={60}
-                    className="rounded object-cover shrink-0"
-                  />
-                )}
-                <div>
-                  <p className="text-xs text-muted-foreground">Media</p>
-                  <p className="font-medium">{selectedReview.media.title}</p>
-                </div>
-              </div>
-
               {/* Content */}
-              <div className="space-y-2 rounded-lg border p-4">
-                {selectedReview.title && (
-                  <h3 className="font-semibold">{selectedReview.title}</h3>
-                )}
-                <p className="text-sm leading-relaxed">
-                  {selectedReview.content}
-                </p>
+              <div className="grid gap-2 rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur-sm">
+                <h4 className="text-xs font-black uppercase tracking-widest text-neutral-400">Transmission Content</h4>
+                <div className="mt-2 rounded-xl p-4 bg-black/40 border border-white/5 relative">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-red-600/50 rounded-l-xl" />
+                  {selectedReview.title && (
+                    <p className="font-black text-sm mb-2 text-white">{selectedReview.title}</p>
+                  )}
+                  <p className="text-neutral-300 font-medium italic">
+                    &quot;{selectedReview.content}&quot;
+                  </p>
+                </div>
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-lg border p-3 text-center">
-                  <p className="text-xs text-muted-foreground">Likes</p>
-                  <p className="text-xl font-bold">
-                    {selectedReview._count.likes}
-                  </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur-sm text-center">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-1">Signal Likes</p>
+                  <p className="text-2xl font-black text-white">{selectedReview._count.likes}</p>
                 </div>
-                <div className="rounded-lg border p-3 text-center">
-                  <p className="text-xs text-muted-foreground">Comments</p>
-                  <p className="text-xl font-bold">
-                    {selectedReview._count.comments}
-                  </p>
+                <div className="rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur-sm text-center">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-1">Comm Threads</p>
+                  <p className="text-2xl font-black text-white">{selectedReview._count.comments}</p>
                 </div>
               </div>
 
               {/* Rejection Reason */}
               {selectedReview.status === "REJECTED" &&
                 selectedReview.rejectedReason && (
-                  <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950">
-                    <p className="text-xs font-semibold text-red-600 dark:text-red-400 mb-1">
-                      Rejection Reason
-                    </p>
-                    <p className="text-sm text-red-700 dark:text-red-300">
+                  <div className="grid gap-2 rounded-2xl border border-red-600/20 bg-red-600/5 p-6 backdrop-blur-sm">
+                    <h4 className="text-xs font-black uppercase tracking-widest text-red-400">Rejection Intelligence</h4>
+                    <div className="mt-2 rounded-xl bg-black/40 p-4 font-medium text-red-300 border border-red-600/20">
                       {selectedReview.rejectedReason}
-                    </p>
+                    </div>
                   </div>
                 )}
 
               {/* Dates */}
-              <div className="text-xs text-muted-foreground space-y-1">
-                <p>
-                  Submitted:{" "}
-                  {new Date(selectedReview.createdAt).toLocaleString()}
-                </p>
-                {selectedReview.publishedAt && (
-                  <p>
-                    Published:{" "}
-                    {new Date(selectedReview.publishedAt).toLocaleString()}
-                  </p>
-                )}
+              <div className="grid gap-2 rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur-sm">
+                <h4 className="text-xs font-black uppercase tracking-widest text-neutral-400">Operational Log</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm mt-2">
+                  <div className="font-bold text-neutral-500 uppercase tracking-wider text-[10px]">Logged At:</div>
+                  <div className="font-bold text-neutral-300">
+                    {new Date(selectedReview.createdAt).toLocaleString()}
+                  </div>
+                  {selectedReview.publishedAt && (
+                    <>
+                      <div className="font-bold text-neutral-500 uppercase tracking-wider text-[10px]">Published At:</div>
+                      <div className="font-bold text-neutral-300">
+                        {new Date(selectedReview.publishedAt).toLocaleString()}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-2 pt-2">
+              <div className="flex gap-4 justify-end pt-4">
                 {selectedReview.status !== "APPROVED" && (
                   <Button
-                    size="sm"
-                    className="bg-green-600 hover:bg-green-700 text-white"
                     onClick={() => {
                       setIsDetailsOpen(false);
                       handleApprove(selectedReview);
                     }}
+                    className="bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-600/20"
                   >
                     <CheckCircle2Icon className="mr-2 size-4" />
-                    Approve
+                    Approve Transmission
                   </Button>
                 )}
                 {selectedReview.status !== "REJECTED" && (
                   <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-orange-500 text-orange-600 hover:bg-orange-50"
                     onClick={() => {
                       setIsDetailsOpen(false);
                       handleReject(selectedReview);
                     }}
+                    className="bg-orange-600/20 text-orange-400 hover:bg-orange-600/30 border border-orange-600/20"
                   >
                     <XCircleIcon className="mr-2 size-4" />
-                    Reject
+                    Reject Transmission
                   </Button>
                 )}
                 <Button
-                  size="sm"
-                  variant="destructive"
-                  className="ml-auto"
                   onClick={() => {
                     setIsDetailsOpen(false);
                     handleDelete(selectedReview);
                   }}
+                  className="bg-red-600/20 text-red-400 hover:bg-red-600/30 border border-red-600/20"
                 >
                   <Trash2Icon className="mr-2 size-4" />
-                  Delete
+                  Purge Log
                 </Button>
               </div>
             </div>
           )}
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 };
 
