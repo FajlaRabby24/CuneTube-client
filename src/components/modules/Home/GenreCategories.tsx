@@ -1,16 +1,52 @@
 "use client";
 
-import { CompassIcon, FilmIcon, GhostIcon, HeartIcon, ZapIcon } from "lucide-react";
+import {
+  CompassIcon,
+  FilmIcon,
+  GhostIcon,
+  HeartIcon,
+  ZapIcon,
+} from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 
 const genres = [
-  { name: "Action", icon: ZapIcon, color: "from-red-500/20 to-red-900/40", border: "border-red-500/50" },
-  { name: "Sci-Fi", icon: CompassIcon, color: "from-blue-500/20 to-blue-900/40", border: "border-blue-500/50" },
-  { name: "Comedy", icon: ZapIcon, color: "from-yellow-500/20 to-yellow-900/40", border: "border-yellow-500/50" },
-  { name: "Horror", icon: GhostIcon, color: "from-purple-500/20 to-purple-900/40", border: "border-purple-500/50" },
-  { name: "Romance", icon: HeartIcon, color: "from-pink-500/20 to-pink-900/40", border: "border-pink-500/50" },
-  { name: "Drama", icon: FilmIcon, color: "from-emerald-500/20 to-emerald-900/40", border: "border-emerald-500/50" },
+  {
+    name: "Action",
+    icon: ZapIcon,
+    color: "from-red-500/20 to-red-900/40",
+    border: "border-red-500/50",
+  },
+  {
+    name: "Sci-Fi",
+    icon: CompassIcon,
+    color: "from-blue-500/20 to-blue-900/40",
+    border: "border-blue-500/50",
+  },
+  {
+    name: "Comedy",
+    icon: ZapIcon,
+    color: "from-yellow-500/20 to-yellow-900/40",
+    border: "border-yellow-500/50",
+  },
+  {
+    name: "Horror",
+    icon: GhostIcon,
+    color: "from-purple-500/20 to-purple-900/40",
+    border: "border-purple-500/50",
+  },
+  {
+    name: "Romance",
+    icon: HeartIcon,
+    color: "from-pink-500/20 to-pink-900/40",
+    border: "border-pink-500/50",
+  },
+  {
+    name: "Drama",
+    icon: FilmIcon,
+    color: "from-emerald-500/20 to-emerald-900/40",
+    border: "border-emerald-500/50",
+  },
 ];
 
 const GenreCategories = () => {
@@ -26,12 +62,13 @@ const GenreCategories = () => {
             Browse by <span className="text-primary italic">Genre</span>
           </h2>
           <p className="text-slate-400 text-sm max-w-lg mx-auto">
-            Find exactly what you're looking for by exploring our curated collections across all categories.
+            Find exactly what you're looking for by exploring our curated
+            collections across all categories.
           </p>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-6 gap-6">
-          {genres.map((genre, index) => {
+          {genres?.map((genre, index) => {
             const Icon = genre.icon;
             return (
               <motion.div
@@ -42,13 +79,15 @@ const GenreCategories = () => {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link
-                  href={`/media?genre=${genre.name}`}
+                  href={`/media?searchTerm=${genre.name}`}
                   className={`group relative flex flex-col items-center justify-center p-8 rounded-3xl border ${genre.border} bg-gradient-to-b ${genre.color} backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]`}
                 >
                   <div className="mb-4 p-4 rounded-2xl bg-white/5 group-hover:bg-white/10 transition-colors">
                     <Icon className="size-8 text-white group-hover:scale-110 transition-transform" />
                   </div>
-                  <span className="text-lg font-bold text-white uppercase tracking-wider font-outfit">{genre.name}</span>
+                  <span className="text-lg font-bold text-white uppercase tracking-wider font-outfit">
+                    {genre.name}
+                  </span>
 
                   {/* Hover Accent */}
                   <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 rounded-full mx-8 mb-4" />
