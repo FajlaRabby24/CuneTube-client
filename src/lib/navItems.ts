@@ -98,6 +98,11 @@ export const userNavItems: NavSection[] = [
         href: "/dashboard/watchlist",
         icon: "Heart",
       },
+      {
+        title: "Notifications",
+        href: "/dashboard/notifications",
+        icon: "Bell",
+      },
     ],
   },
 ];
