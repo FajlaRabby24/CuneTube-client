@@ -1,165 +1,210 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  Bell,
+  BellRing,
+  CheckCircle2,
+  Clock,
+  CreditCard,
+  MessageSquare,
+  ShieldAlert,
+  ShieldCheck,
+  Star,
+  ThumbsUp,
+  XCircle,
+} from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { formatDistanceToNow } from "date-fns";
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatDistanceToNow } from "date-fns";
-import { Bell, Calendar, CheckCircle, Clock, UserPlus } from "lucide-react";
+import {
+  getUserNotifications,
+  INotification,
+  markAllNotificationsAsRead,
+  markNotificationAsRead,
+} from "@/services/Dashboard/notification.service";
+import { cn } from "@/lib/utils";
 
-interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  type: "appointment" | "schedule" | "system" | "user";
-  timestamp: Date;
-  read: boolean;
-}
-
-const MOCK_NOTIFICATIONS: Notification[] = [
-  {
-    id: "1",
-    title: "New Appointment Scheduled",
-    message:
-      "You have a new appointment scheduled with John Doe on 2024-06-15 at 10:00 AM.",
-    type: "appointment",
-    timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-    read: false,
-  },
-
-  {
-    id: "2",
-    title: "Schedule Updated",
-    message: "Your schedule has been updated for the week of 2024-06-17.",
-    type: "schedule",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-    read: true,
-  },
-
-  {
-    id: "3",
-    title: "System Maintenance",
-    message:
-      "The system will undergo maintenance on 2024-06-20 from 1:00 AM to 3:00 AM.",
-    type: "system",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-    read: false,
-  },
-
-  {
-    id: "4",
-    title: "New User Registered",
-    message: "A new user, Jane Smith, has registered on the platform.",
-    type: "user",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48), // 2 days ago
-    read: true,
-  },
-];
-
-const getNotificationIcon = (type: Notification["type"]) => {
-  switch (type) {
-    case "appointment":
-      return <Calendar className="h-4 w-4 text-blue-600" />;
-    case "schedule":
-      return <Clock className="h-4 w-4 text-amber-600" />;
-    case "system":
-      return <CheckCircle className="h-4 w-4 text-purple-600" />;
-    case "user":
-      return <UserPlus className="h-4 w-4 text-green-600" />;
-    default:
-      return <Bell className="h-4 w-4 text-gray-600" />;
-  }
+const typeConfig: Record<string, { icon: any; color: string; bg: string }> = {
+  REVIEW_APPROVED: { icon: ShieldCheck, color: "text-green-500", bg: "bg-green-500/10" },
+  REVIEW_REJECTED: { icon: ShieldAlert, color: "text-red-500", bg: "bg-red-500/10" },
+  REVIEW_LIKED: { icon: ThumbsUp, color: "text-blue-500", bg: "bg-blue-500/10" },
+  COMMENT_RECEIVED: { icon: MessageSquare, color: "text-purple-500", bg: "bg-purple-500/10" },
+  COMMENT_REPLIED: { icon: MessageSquare, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+  SUBSCRIPTION_ACTIVATED: { icon: Star, color: "text-amber-500", bg: "bg-amber-500/10" },
+  SUBSCRIPTION_EXPIRED: { icon: XCircle, color: "text-neutral-500", bg: "bg-neutral-500/10" },
+  PAYMENT_SUCCEEDED: { icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+  PAYMENT_FAILED: { icon: XCircle, color: "text-rose-500", bg: "bg-rose-500/10" },
+  REPORT_RESOLVED: { icon: ShieldCheck, color: "text-teal-500", bg: "bg-teal-500/10" },
 };
 
 const NotificationDropdown = () => {
-  const unreadCount = MOCK_NOTIFICATIONS.filter(
-    (notification) => !notification.read,
-  ).length;
+  const queryClient = useQueryClient();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const { data: notificationData, isLoading } = useQuery({
+    queryKey: ["notifications"],
+    queryFn: () => getUserNotifications("limit=10"),
+    refetchInterval: 30000, // Poll every 30 seconds
+  });
+
+  const markAllReadMutation = useMutation({
+    mutationFn: () => markAllNotificationsAsRead(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+
+  const markReadMutation = useMutation({
+    mutationFn: (id: string) => markNotificationAsRead(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+
+  const notifications = notificationData?.data || [];
+  const unreadCount = notifications.filter((n: INotification) => !n.isRead).length;
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button
-          variant={"outline"}
-          size={"icon"}
-          className="relative cursor-pointer"
+          variant="ghost"
+          size="icon"
+          className="relative h-10 w-10 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group"
         >
-          <Bell className="h-5 w-5" />
-          <Badge
-            className="absolute -top-1 -right-1 h-5 w-5 rounded full p-0 flex items-center justify-center"
-            variant={"destructive"}
-          >
-            <span className="text-[10px">
-              {unreadCount > 9 ? "9+" : unreadCount}
-            </span>
-          </Badge>
+          {unreadCount > 0 ? (
+            <>
+              <BellRing className="h-5 w-5 text-red-500 animate-pulse" />
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[8px] font-black italic text-white ring-2 ring-black">
+                {unreadCount}
+              </span>
+            </>
+          ) : (
+            <Bell className="h-5 w-5 text-neutral-400 group-hover:text-white transition-colors" />
+          )}
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align={"end"} className="w-80">
-        <DropdownMenuLabel className="flex items-center justify-between">
-          <span>Notifications</span>
+      <DropdownMenuContent
+        align="end"
+        className="w-80 sm:w-96 overflow-hidden rounded-2xl border border-white/10 bg-neutral-950 p-0 shadow-2xl backdrop-blur-3xl"
+      >
+        <div className="flex items-center justify-between border-b border-white/5 bg-white/[0.02] p-4">
+          <div className="flex items-center gap-2">
+            <h3 className="text-[10px] font-black italic tracking-widest text-white uppercase">
+              Notifications Matrix
+            </h3>
+            {unreadCount > 0 && (
+              <span className="rounded-full bg-red-600/10 px-2 py-0.5 text-[8px] font-black text-red-500 uppercase tracking-tighter">
+                {unreadCount} New
+              </span>
+            )}
+          </div>
           {unreadCount > 0 && (
-            <Badge variant={"secondary"} className="ml-2">
-              {unreadCount} new
-            </Badge>
+            <button
+              onClick={() => markAllReadMutation.mutate()}
+              className="text-[8px] font-black uppercase tracking-widest text-neutral-500 hover:text-white transition-colors"
+            >
+              Clear Buffer
+            </button>
           )}
-        </DropdownMenuLabel>
+        </div>
 
-        <DropdownMenuSeparator />
-
-        <ScrollArea className="h-75">
-          {MOCK_NOTIFICATIONS.length > 0 ? (
-            MOCK_NOTIFICATIONS.map((notification) => (
-              <DropdownMenuItem
-                key={notification.id}
-                className="flex flex-col items-start gap-2 p-3 cursor-pointer"
-              >
-                <div className="mt-0.5">
-                  {getNotificationIcon(notification.type)}
-                </div>
-
-                <div className="flex-1 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium leading-none">
-                      {notification.title}
-                    </p>
-                    {!notification.read && (
-                      <div className="h-2 w-2 rounded-full bg-blue-600" />
-                    )}
-                  </div>
-
-                  <p className="text-xs text-muted-foreground line-clamp-2">
-                    {notification.message}
-                  </p>
-
-                  <p className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(notification.timestamp, {
-                      addSuffix: true,
-                    })}
-                  </p>
-                </div>
-              </DropdownMenuItem>
-            ))
-          ) : (
-            <div className="p-6 text-center text-sm text-muted-foreground">
-              No notifications
+        <div className="max-h-[400px] overflow-y-auto">
+          {isLoading ? (
+            <div className="flex h-40 flex-col items-center justify-center space-y-3">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-red-600/20 border-t-red-600" />
+              <p className="text-[8px] font-black uppercase tracking-widest text-neutral-600 italic">
+                Syncing status...
+              </p>
             </div>
+          ) : notifications.length === 0 ? (
+            <div className="flex h-60 flex-col items-center justify-center p-8 text-center">
+              <div className="mb-4 rounded-2xl bg-white/5 p-4 text-neutral-500">
+                <Bell className="h-8 w-8 opacity-20" />
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-white italic">
+                Buffer Empty
+              </p>
+              <p className="mt-1 text-[9px] font-medium text-neutral-500 uppercase leading-relaxed">
+                No telemetry data available at this time.
+              </p>
+            </div>
+          ) : (
+            <AnimatePresence mode="popLayout">
+              {notifications.map((notification: INotification, i: number) => {
+                const config = typeConfig[notification.type] || {
+                  icon: Bell,
+                  color: "text-neutral-400",
+                  bg: "bg-neutral-500/10",
+                };
+                const Icon = config.icon;
+
+                return (
+                  <motion.div
+                    key={notification.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    className={cn(
+                      "group relative flex gap-4 border-b border-white/5 p-4 transition-colors hover:bg-white/[0.03]",
+                      !notification.isRead && "bg-white/[0.01]"
+                    )}
+                  >
+                    {!notification.isRead && (
+                      <div className="absolute left-1 top-1/2 -translate-y-1/2 h-8 w-0.5 rounded-full bg-red-600" />
+                    )}
+
+                    <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl", config.bg)}>
+                      <Icon className={cn("h-5 w-5", config.color)} />
+                    </div>
+
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <Link
+                          href={notification.link || "#"}
+                          onClick={() => {
+                            if (!notification.isRead) markReadMutation.mutate(notification.id);
+                            setIsOpen(false);
+                          }}
+                          className="text-[11px] font-black italic text-white uppercase tracking-tight hover:text-red-500 transition-colors line-clamp-1"
+                        >
+                          {notification.title}
+                        </Link>
+                        <span className="flex items-center gap-1 shrink-0 text-[8px] font-black uppercase text-neutral-600">
+                          <Clock className="h-2.5 w-2.5" />
+                          {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                        </span>
+                      </div>
+                      <p className="text-[10px] font-medium leading-relaxed text-neutral-500 line-clamp-2">
+                        {notification.message}
+                      </p>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           )}
-        </ScrollArea>
+        </div>
 
-        <DropdownMenuSeparator />
-
-        <DropdownMenuItem className="text-center justify-center cursor-pointer">
-          View All Notifications
-        </DropdownMenuItem>
+        <div className="border-t border-white/5 bg-white/[0.02] p-2">
+          <Button
+            asChild
+            variant="ghost"
+            className="h-10 w-full rounded-xl text-[9px] font-black uppercase tracking-[0.2em] italic text-neutral-400 hover:text-white transition-all"
+          >
+            <Link href="/dashboard/notifications">View All Transmission Logs</Link>
+          </Button>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
