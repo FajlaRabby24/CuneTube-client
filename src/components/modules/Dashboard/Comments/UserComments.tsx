@@ -168,7 +168,7 @@ const UserComments = ({ initialQueryString }: CommentsProps) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-3xl border border-white/5 bg-black/40 p-8 backdrop-blur-2xl"
+        className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/5 bg-black/40 p-6 sm:p-8 backdrop-blur-2xl"
       >
         <div className="absolute top-0 right-0 p-8 opacity-10">
           <MessageCircleIcon className="h-32 w-32" />
@@ -187,16 +187,16 @@ const UserComments = ({ initialQueryString }: CommentsProps) => {
         </div>
       </motion.div>
 
-      <div className="space-y-6 px-4">
+      <div className="space-y-6 px-1 sm:px-4">
         {/* Filters Bar */}
         <div className="flex flex-wrap items-center justify-between gap-4 py-2">
-          <div className="relative">
+          <div className="relative w-full sm:w-auto">
             <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-neutral-600" />
             <input
               placeholder="Search comments..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="h-9 w-[260px] rounded-xl border border-white/5 bg-black/20 pl-9 pr-3 text-[10px] font-black tracking-widest uppercase italic text-white placeholder:text-neutral-600 outline-none focus:border-red-600/40 focus:ring-1 focus:ring-red-600/20 transition-all"
+              className="h-9 w-full sm:w-[260px] rounded-xl border border-white/5 bg-black/20 pl-9 pr-3 text-[10px] font-black tracking-widest uppercase italic text-white placeholder:text-neutral-600 outline-none focus:border-red-600/40 focus:ring-1 focus:ring-red-600/20 transition-all"
             />
           </div>
 
@@ -334,11 +334,11 @@ const UserComments = ({ initialQueryString }: CommentsProps) => {
 
         {/* Cinematic Pagination */}
         {meta.totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 pb-8">
-            <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest italic">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 pb-8 pt-4">
+            <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest italic order-2 sm:order-1">
               Console Page {meta.page} of {meta.totalPages}
             </p>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 order-1 sm:order-2">
               <Button
                 variant="outline"
                 size="sm"

@@ -1,4 +1,4 @@
-import Subscriptions from "@/components/modules/Dashboard/Subscriptions";
+import UserSubscriptions from "@/components/modules/Dashboard/Subscriptions/UserSubscription";
 import { getUserSubscriptions } from "@/services/Dashboard/subscription.service";
 import {
   dehydrate,
@@ -40,7 +40,7 @@ const SubscriptionPage = async ({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <Subscriptions initialQueryString={queryString} />
+      <UserSubscriptions initialQueryString={queryString} />
     </HydrationBoundary>
   );
 };

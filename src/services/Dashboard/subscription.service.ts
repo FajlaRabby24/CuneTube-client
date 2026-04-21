@@ -38,7 +38,9 @@ export interface IGetSubscriptionResponse {
   data: ISubscription | null;
 }
 
-export async function getUserSubscriptions(queryString: string = ""): Promise<IGetSubscriptionResponse | null> {
+export async function getUserSubscriptions(
+  queryString: string = "",
+): Promise<IGetSubscriptionResponse | null> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("accessToken")?.value;
@@ -66,22 +68,32 @@ export async function cancelUserSubscription() {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("accessToken")?.value;
+    const sessionToken = cookieStore.get("better-auth.session_token")?.value;
 
     if (!accessToken) {
       return { success: false, message: "Unauthorized" };
     }
 
-    const res = await httpClient.post("/subscriptions/cancel", {}, {
-      headers: {
-        Authorization: accessToken,
+    const res = await httpClient.post(
+      "/subscriptions/cancel",
+      {},
+      {
+        headers: {
+          Cookie: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}`,
+        },
       },
-    });
+    );
 
-    return { success: true, message: "Subscription cancelled successfully", data: res.data };
+    return {
+      success: true,
+      message: "Subscription cancelled successfully",
+      data: res.data,
+    };
   } catch (error: any) {
     return {
       success: false,
-      message: error?.response?.data?.message || "Failed to cancel subscription",
+      message:
+        error?.response?.data?.message || "Failed to cancel subscription",
     };
   }
 }
