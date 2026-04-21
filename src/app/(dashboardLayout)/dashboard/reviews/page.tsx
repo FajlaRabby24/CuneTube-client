@@ -1,4 +1,4 @@
-import Reviews from "@/components/modules/Dashboard/Reviews";
+import Reviews from "@/components/modules/Dashboard/Reviews/UserReviews";
 import { getUserReviews } from "@/services/Dashboard/review.service";
 import {
   dehydrate,
