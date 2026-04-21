@@ -10,7 +10,6 @@ export interface INotification {
   title: string;
   message: string;
   isRead: boolean;
-  link: string | null;
   createdAt: string;
 }
 
@@ -19,13 +18,6 @@ export interface INotificationMeta {
   limit: number;
   total: number;
   totalPages: number;
-}
-
-export interface IGetNotificationResponse {
-  success: boolean;
-  message: string;
-  data: INotification[];
-  meta: INotificationMeta;
 }
 
 export async function getUserNotifications(queryString: string = "") {

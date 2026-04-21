@@ -213,15 +213,7 @@ const NotificationDropdown = () => {
 
                       <div className="flex-1 space-y-1">
                         <div className="flex items-start justify-between gap-2">
-                          <Link
-                            href={notification.link || "#"}
-                            onClick={() => {
-                              setIsOpen(false);
-                            }}
-                            className="text-[11px] font-black italic text-white uppercase tracking-tight hover:text-red-500 transition-colors line-clamp-1"
-                          >
-                            {notification.title}
-                          </Link>
+                          {notification.title}
                           <span className="flex items-center gap-1 shrink-0 text-[8px] font-black uppercase text-neutral-600">
                             <Clock className="h-2.5 w-2.5" />
                             {formatDistanceToNow(

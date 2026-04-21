@@ -66,6 +66,11 @@ export const adminNavItems: NavSection[] = [
         href: "/admin/dashboard/tag-management",
         icon: "Tag",
       },
+      {
+        title: "Notifications",
+        href: "/admin/dashboard/notifications",
+        icon: "Bell",
+      },
     ],
   },
 ];
