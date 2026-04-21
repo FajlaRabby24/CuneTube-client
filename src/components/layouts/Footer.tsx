@@ -41,18 +41,19 @@ export const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-12 mb-16">
           {/* Logo & Description */}
           <div className="flex flex-col items-center md:items-start gap-6 max-w-sm">
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="p-2 bg-white/5 rounded-xl border border-white/10 group-hover:border-primary/50 transition-colors">
-                <img
-                  src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-icon.svg"
-                  className="max-h-6 dark:invert"
-                  alt="CineTube Logo"
-                />
-              </div>
-              <span className="text-2xl font-black uppercase tracking-tighter text-white font-outfit">
-                CineTube
-              </span>
-            </Link>
+            {/* Logo / Brand */}
+            <div className="flex h-20 items-center border-b border-white/5 px-8 pt-2">
+              <Link href={`/`} className="group flex items-center gap-2">
+                <div className="size-8 rounded-lg bg-red-600 flex items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.3)] group-hover:scale-110 transition-transform">
+                  <span className="text-lg font-black italic text-white tracking-tighter">
+                    CT
+                  </span>
+                </div>
+                <span className="text-xl font-black italic text-white tracking-tighter uppercase group-hover:text-red-500 transition-colors">
+                  CineTube
+                </span>
+              </Link>
+            </div>
             <p className="text-slate-400 text-sm md:text-base leading-relaxed text-center md:text-left">
               Your ultimate destination for endless entertainment. Stream
               movies, TV shows, and exclusive content anytime, anywhere in

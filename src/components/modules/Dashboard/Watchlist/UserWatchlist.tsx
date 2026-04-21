@@ -9,14 +9,12 @@ import {
   ChevronRight,
   Eye,
   Film,
-  SearchIcon,
   Trash2,
   Tv,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
 
@@ -39,20 +37,8 @@ const UserWatchlist = ({ initialQueryString }: WatchlistProps) => {
   const queryClient = useQueryClient();
 
   const page = Number(searchParams.get("page")) || 1;
-  const searchTerm = searchParams.get("searchTerm") || "";
-
-  const [searchInput, setSearchInput] = useState(searchTerm);
-  const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchInput);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchInput]);
 
   const queryParams = new URLSearchParams(initialQueryString);
-  if (debouncedSearch) queryParams.set("searchTerm", debouncedSearch);
   queryParams.set("page", String(page));
 
   const {
@@ -60,7 +46,7 @@ const UserWatchlist = ({ initialQueryString }: WatchlistProps) => {
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["user-watchlist", page, debouncedSearch],
+    queryKey: ["user-watchlist", page],
     queryFn: () => getUserWatchlist(queryParams.toString()),
   });
 
@@ -124,7 +110,7 @@ const UserWatchlist = ({ initialQueryString }: WatchlistProps) => {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500 px-4 py-4">
       {/* Cinematic Hero */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -160,20 +146,7 @@ const UserWatchlist = ({ initialQueryString }: WatchlistProps) => {
         </div>
       </motion.div>
 
-      <div className="space-y-6 px-1 sm:px-4">
-        {/* Filters Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 py-2">
-          <div className="relative w-full sm:w-auto">
-            <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-neutral-600" />
-            <input
-              placeholder="Search watchlist..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              className="h-9 w-full sm:w-[260px] rounded-xl border border-white/5 bg-black/20 pl-9 pr-3 text-[10px] font-black tracking-widest uppercase italic text-white placeholder:text-neutral-600 outline-none focus:border-red-600/40 focus:ring-1 focus:ring-red-600/20 transition-all"
-            />
-          </div>
-        </div>
-
+      <div className="space-y-6">
         {items?.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
@@ -241,7 +214,7 @@ const UserWatchlist = ({ initialQueryString }: WatchlistProps) => {
                         size="sm"
                         className="w-[140px] bg-white text-black hover:bg-neutral-100 rounded-xl font-black uppercase text-[10px] tracking-widest italic h-10 shadow-xl"
                       >
-                        <Link href={`/media/${item.media.slug}`}>
+                        <Link href={`/media/${item.media.id}`}>
                           <Eye className="mr-2 h-3.5 w-3.5" /> View Intel
                         </Link>
                       </Button>
