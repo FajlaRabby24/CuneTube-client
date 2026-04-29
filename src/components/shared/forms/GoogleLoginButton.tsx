@@ -1,12 +1,22 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { cn } from "../../../lib/utils";
 
 const GoogleLoginButton = ({ className }: { className?: string }) => {
+  const handleGoogleLogin = () => {
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const currentPath = window.location.pathname + window.location.search;
+    const redirectParam = encodeURIComponent(currentPath);
+
+    window.location.href = `${apiBaseUrl}/auth/login/google?redirect=${redirectParam}`;
+  };
   return (
     <Button
       variant="outline"
       className={cn("cursor-pointer", className)}
       type="button"
+      onClick={handleGoogleLogin}
     >
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path
