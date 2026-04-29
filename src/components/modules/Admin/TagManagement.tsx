@@ -154,11 +154,13 @@ const TagManagement = () => {
     });
   };
 
-  const filteredTags = tags.filter(
-    (tag) =>
-      tag.name.toLowerCase().includes(search.toLowerCase()) ||
-      tag.slug.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filteredTags = Array.isArray(tags)
+    ? tags.filter(
+        (tag) =>
+          tag.name.toLowerCase().includes(search.toLowerCase()) ||
+          tag.slug.toLowerCase().includes(search.toLowerCase()),
+      )
+    : [];
 
   if (isLoading) {
     return (
@@ -186,7 +188,8 @@ const TagManagement = () => {
               Tag Registry
             </h1>
             <p className="text-neutral-500 font-medium tracking-wide">
-              {tags.length} registered signal tag{tags.length !== 1 ? "s" : ""} in the system.
+              {Array.isArray(tags) ? tags.length : 0} registered signal tag
+              {Array.isArray(tags) && tags.length !== 1 ? "s" : ""} in the system.
             </p>
           </div>
           <div className="flex items-center gap-2">

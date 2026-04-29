@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { envVars } from "../../../config/env";
 
 cloudinary.config({
@@ -16,10 +16,23 @@ interface DeleteImageRequest {
 export async function DELETE(request: NextRequest) {
   try {
     const { publicId, resourceType }: DeleteImageRequest = await request.json();
-    await cloudinary.uploader.destroy(publicId, {
-      resource_type: resourceType,
+
+    if (!publicId) {
+      return NextResponse.json(
+        { success: false, message: "Public ID is required" },
+        { status: 400 },
+      );
+    }
+
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: resourceType || "image",
     });
-  } catch (error) {
-    return false;
+
+    return NextResponse.json({ success: true, result });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, message: error.message || "Delete failed" },
+      { status: 500 },
+    );
   }
 }
