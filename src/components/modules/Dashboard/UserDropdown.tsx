@@ -47,15 +47,15 @@ const UserDropdown = ({ userInfo }: { userInfo: IUserInfo }) => {
       }
 
       // Fallback: Clear local cookies anyway if session not found or API failed
-      await deleteCookie("refreshToken");
       await deleteCookie(cookieName);
+      await deleteCookie("refreshToken");
       await deleteCookie("accessToken");
       router.push("/login");
-      toast.success("Session cleared");
+      toast.success("Logged out successfully");
     } catch (error) {
       console.error("Logout error:", error);
-      toast.error("Logout failed, but session cleared");
       router.push("/login");
+      toast.error("Logout failed, but session cleared");
     }
   };
 
