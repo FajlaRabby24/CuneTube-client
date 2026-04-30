@@ -9,6 +9,10 @@ const getTokenSecondRemaining = (token: string): number => {
   }
 
   try {
+    // Basic check if it's a JWT format (header.payload.signature)
+    if (!token.includes(".") || token.split(".").length !== 3) {
+      return 0;
+    }
     const tokenPayload = decodeJwt(token) as JWTPayload;
     if (tokenPayload && !tokenPayload.exp) {
       return 0;
