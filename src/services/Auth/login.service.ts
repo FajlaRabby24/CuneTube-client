@@ -41,7 +41,7 @@ export const loginAction = async (
       accessToken,
       refreshToken,
       token,
-      user: { needPasswordChange, email, role },
+      user: { role },
     } = response.data;
 
     if (!accessToken || !refreshToken || !token) {
@@ -59,13 +59,13 @@ export const loginAction = async (
       60 * 60 * 24 * 7, // 7 days
     );
 
-    if (needPasswordChange) {
-      return {
-        success: true,
-        message: "Please first reset your password.",
-        route: `/reset-password?email=${email}${redirectPath ? `&redirectPath=${redirectPath}` : ""}`,
-      };
-    }
+    // if (needPasswordChange) {
+    //   return {
+    //     success: true,
+    //     message: "Please first reset your password.",
+    //     route: `/reset-password?email=${email}${redirectPath ? `&redirectPath=${redirectPath}` : ""}`,
+    //   };
+    // }
 
     return {
       success: true,

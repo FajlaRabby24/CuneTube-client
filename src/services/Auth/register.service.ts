@@ -1,11 +1,6 @@
 "use server";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  getDefaultDashboardRoute,
-  isValidRedirectForRole,
-  UserRole,
-} from "../../lib/authUtilts";
 import { httpClient } from "../../lib/axios/httpClient";
 import { IRegisterPayload, IRegisterResponse } from "../../types/auth.types";
 import { registerZodSchema } from "../../zod/auth.validation";
@@ -35,31 +30,35 @@ export const registerAction = async (
       dataToSend,
     );
 
-    const {
-      user: { needPasswordChange, email, role, emailVerified },
-    } = response.data;
+    // const {
+    //   user: { needPasswordChange, email, role, emailVerified },
+    // } = response.data;
 
-    if (!emailVerified) {
+    // if (!emailVerified) {
+    //   return {
+    //     success: true,
+    //     message: "Registration successful. Please verify your email.",
+    //     route: `/verify-email?email=${email}${redirectPath ? `&redirectPath=${redirectPath}` : ""}`,
+    //   };
+    // } else if (needPasswordChange) {
+    //   return {
+    //     success: true,
+    //     message: "Registration successful. Please reset your password.",
+    //     route: `/reset-password?email=${email}${redirectPath ? `&redirectPath=${redirectPath}` : ""}`,
+    //   };
+    // }
+
+    if (!response.success) {
       return {
-        success: true,
-        message: "Registration successful. Please verify your email.",
-        route: `/verify-email?email=${email}${redirectPath ? `&redirectPath=${redirectPath}` : ""}`,
-      };
-    } else if (needPasswordChange) {
-      return {
-        success: true,
-        message: "Registration successful. Please reset your password.",
-        route: `/reset-password?email=${email}${redirectPath ? `&redirectPath=${redirectPath}` : ""}`,
+        success: false,
+        message: "Registration failed. Please try again.",
       };
     }
 
     return {
       success: true,
-      message: "Registration successful.",
-      route:
-        redirectPath && isValidRedirectForRole(redirectPath, role as UserRole)
-          ? redirectPath
-          : getDefaultDashboardRoute(role as UserRole),
+      message: "Registration successful. Please login",
+      route: "/login",
     };
   } catch (error: any) {
     return {
