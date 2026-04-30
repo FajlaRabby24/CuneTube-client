@@ -118,8 +118,6 @@ const MediaDetails = ({ media }: MediaDetailsProps) => {
         addViews(media.id);
       } else {
         toast.info("This content requires a premium subscription.", {
-          description:
-            "Please visit our homepage to choose a subscription plan.",
           duration: 5000,
         });
       }
