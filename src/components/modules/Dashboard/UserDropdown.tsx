@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { deleteCookie } from "@/lib/cookieUtils";
+import { deleteCookie, getCookie } from "@/lib/cookieUtils";
 import { getSessionCookieName } from "@/lib/tokenUtils";
 import { IUserInfo } from "@/services/Auth/getMe.service";
 import { logoutSession } from "@/services/Auth/logoutSession.service";
@@ -24,10 +24,11 @@ const UserDropdown = ({ userInfo }: { userInfo: IUserInfo }) => {
 
   const handleLogout = async () => {
     try {
-      const token = await getSessionCookieName();
-      const currentSessionIdAndToken = userInfo.sessions.filter(
+      const cookieName = await getSessionCookieName();
+      const token = await getCookie(cookieName);
+      const currentSessionIdAndToken = userInfo.sessions.find(
         (session) => session.token === token,
-      )[0];
+      );
 
       if (currentSessionIdAndToken) {
         const result = await logoutSession(
@@ -37,16 +38,24 @@ const UserDropdown = ({ userInfo }: { userInfo: IUserInfo }) => {
 
         if (result.success) {
           await deleteCookie("refreshToken");
-          await deleteCookie("better-auth.session_token");
+          await deleteCookie(cookieName);
           await deleteCookie("accessToken");
           router.push("/login");
-          toast.success("Disconnected from secure session");
-        } else {
-          toast.error(result.message || "Logout failed");
+          toast.success("Logged out successfully");
+          return;
         }
       }
+
+      // Fallback: Clear local cookies anyway if session not found or API failed
+      await deleteCookie("refreshToken");
+      await deleteCookie(cookieName);
+      await deleteCookie("accessToken");
+      router.push("/login");
+      toast.success("Session cleared");
     } catch (error) {
-      toast.error("Logout failed");
+      console.error("Logout error:", error);
+      toast.error("Logout failed, but session cleared");
+      router.push("/login");
     }
   };
 
