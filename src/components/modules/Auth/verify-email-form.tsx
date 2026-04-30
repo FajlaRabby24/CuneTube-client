@@ -109,8 +109,11 @@ export function VerifyEmailForm({ email, redirectPath }: IVerifyEmailForm) {
       </form>
 
       <div className="text-center">
-        <button className="text-sm font-bold text-slate-500 hover:text-red-600 transition-colors uppercase tracking-widest">
-          Didn't receive a code? Resend
+        <button
+          onClick={() => router.push("/login")}
+          className="text-sm font-bold text-slate-500 hover:text-red-600 transition-colors hover:underline cursor-pointer underline-offset-4"
+        >
+          Back to login
         </button>
       </div>
     </div>
