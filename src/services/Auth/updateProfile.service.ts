@@ -1,8 +1,20 @@
 "use server";
 
+import { setTokenInCookies } from "@/lib/tokenUtils";
 import { httpClient } from "../../lib/axios/httpClient";
 import { updateProfileSchema } from "../../zod/auth.validation";
 
+export interface IUpdateProfileResponse {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    image: string | null;
+    bio: string | null;
+  };
+  accessToken: string;
+  refreshToken: string;
+}
 export const updateProfileAction = async (payload: {
   name?: string;
   image?: string | null;
@@ -20,7 +32,23 @@ export const updateProfileAction = async (payload: {
   }
 
   try {
-    const response = await httpClient.put("/auth/profile", parsedPayload.data);
+    const response = await httpClient.patch<IUpdateProfileResponse>(
+      "/auth/me",
+      parsedPayload.data,
+    );
+
+    if (!response.success) {
+      return {
+        success: false,
+        message: response.message || "Profile update failed",
+      };
+    }
+
+    const { accessToken, refreshToken } = response.data;
+
+    await setTokenInCookies("accessToken", accessToken);
+    await setTokenInCookies("refreshToken", refreshToken);
+
     return {
       success: true,
       message: "Profile updated successfully",
