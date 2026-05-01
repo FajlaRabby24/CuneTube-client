@@ -128,12 +128,13 @@ const Navbar = ({
         <div className="block lg:hidden">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link href={logo.url} className="flex items-center gap-2">
-              <img
-                src={logo.src}
-                className="max-h-8 dark:invert"
-                alt={logo.alt}
-              />
+            {/* Logo */}
+            <Link href={`/`} className="group flex items-center gap-2">
+              <div className="size-8 rounded-lg bg-red-600 flex items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.3)] group-hover:scale-110 transition-transform">
+                <span className="text-lg font-black italic text-white tracking-tighter">
+                  CT
+                </span>
+              </div>
             </Link>
             <div className="space-x-2">
               <Sheet>

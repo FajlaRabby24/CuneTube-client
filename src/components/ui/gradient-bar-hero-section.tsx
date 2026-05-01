@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "./button";
 import { Input } from "./input";
 
@@ -66,7 +66,7 @@ const MovieSearchForm: React.FC = () => {
 
   return (
     <div className="relative z-10 w-full">
-      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row">
+      <form onSubmit={handleSubmit} className="flex ">
         <Input
           type="text"
           value={searchTerm}
