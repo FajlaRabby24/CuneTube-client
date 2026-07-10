@@ -16,6 +16,7 @@ export interface IPricingPlan {
 export const getAllPricingPlans = async () => {
   try {
     const res = await httpClient.get<IPricingPlan[]>("/pricing");
+
     return res.data;
   } catch (error) {
     return [];

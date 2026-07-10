@@ -86,6 +86,7 @@ const TopRatedMovies = () => {
                     src={`https://img.youtube.com/vi/${getYouTubeVideoId(media.youtubeStreamUrl)}/hqdefault.jpg`} // In a real app we'd use backdropUrl
                     alt={media.title}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
                   />
 

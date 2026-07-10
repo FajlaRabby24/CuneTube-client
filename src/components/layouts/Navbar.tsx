@@ -125,7 +125,7 @@ const Navbar = ({
         </nav>
 
         {/* Mobile Menu */}
-        <div className="block lg:hidden">
+        <div className="block lg:hidden ">
           <div className="flex items-center justify-between">
             {/* Logo */}
             {/* Logo */}
@@ -143,17 +143,17 @@ const Navbar = ({
                     <Menu className="size-4" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent className="overflow-y-auto">
+                <SheetContent className={cn("overflow-y-auto bg-slate-950")}>
                   <SheetHeader>
                     <SheetTitle>
                       <Link href={logo.url} className="flex items-center gap-2">
-                        <img
-                          src={logo.src}
-                          className="max-h-8 dark:invert"
-                          alt={logo.alt}
-                        />
-                        <span className="text-lg font-semibold tracking-tighter">
-                          {logo.title}
+                        <div className="size-8 rounded-lg bg-red-600 flex items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.3)] group-hover:scale-110 transition-transform">
+                          <span className="text-lg font-black italic text-white tracking-tighter">
+                            CT
+                          </span>
+                        </div>
+                        <span className="text-lg font-black italic text-white tracking-tighter uppercase group-hover:text-red-500 transition-colors">
+                          CineTube
                         </span>
                       </Link>
                     </SheetTitle>
