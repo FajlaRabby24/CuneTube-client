@@ -71,6 +71,11 @@ export const adminNavItems: NavSection[] = [
         href: "/admin/dashboard/notifications",
         icon: "Bell",
       },
+      {
+        title: "Contact Messages",
+        href: "/admin/dashboard/contact-messages",
+        icon: "Mail",
+      },
     ],
   },
 ];
@@ -79,7 +84,7 @@ export const userNavItems: NavSection[] = [
   {
     items: [
       {
-        title: "Payments",   // TODO:  check in desktop
+        title: "Payments", // TODO:  check in desktop
         href: "/dashboard/payments",
         icon: "CreditCard",
       },
