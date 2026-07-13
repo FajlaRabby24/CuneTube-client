@@ -124,7 +124,7 @@ const Navbar = ({
                 <Button asChild variant="outline">
                   <Link href={auth.login.url}>{auth.login.title}</Link>
                 </Button>
-                <Button asChild>
+                <Button asChild className={cn("bg-red-600 text-white")}>
                   <Link href={auth.signup.url}>{auth.signup.title}</Link>
                 </Button>
               </>
@@ -185,7 +185,10 @@ const Navbar = ({
                               {auth.login.title}
                             </Link>
                           </Button>
-                          <Button asChild>
+                          <Button
+                            asChild
+                            className={cn("bg-red-600 text-white")}
+                          >
                             <Link href={auth.signup.url}>
                               {auth.signup.title}
                             </Link>

@@ -87,6 +87,7 @@ const TrendingMovies = () => {
                       src={`https://img.youtube.com/vi/${getYouTubeVideoId(media?.youtubeStreamUrl)}/hqdefault.jpg`}
                       alt={media.title}
                       fill
+                      sizes="(max-width: 768px) 300px, 450px"
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
                     />
 
