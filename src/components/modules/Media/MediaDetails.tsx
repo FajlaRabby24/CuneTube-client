@@ -232,7 +232,14 @@ const MediaDetails = ({ media }: MediaDetailsProps) => {
 
             {/* Meta Info */}
             <div className="space-y-6 flex-1">
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 items-center">
+                {media.pricingType === "PREMIUM" && (
+                  <Badge
+                    className="bg-orange-600 hover:bg-orange-700 text-white border-none uppercase tracking-widest text-[10px] font-black shadow-[0_0_10px_rgba(234,88,12,0.4)]"
+                  >
+                    Premium
+                  </Badge>
+                )}
                 {media.genres.map((g) => (
                   <Badge
                     key={g.id}
