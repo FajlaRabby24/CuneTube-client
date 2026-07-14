@@ -51,7 +51,7 @@ bun --version
 1. **Clone the Repository**:
 
    ```bash
-   git clone https://github.com/FajlaRabby24/CuneTube-client.git
+   git clone https://github.com/FajlaRabby24/CineTube-client.git
    cd CineTube
    ```
 
